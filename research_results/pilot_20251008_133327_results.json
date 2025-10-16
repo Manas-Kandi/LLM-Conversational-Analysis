@@ -1,0 +1,60 @@
+{
+  "batch_id": "pilot_20251008_133327",
+  "start_time": "2025-10-08T13:33:27.277973",
+  "total_runs": 6,
+  "runs": [
+    {
+      "run_number": 1,
+      "condition_code": "N_T070",
+      "status": "error",
+      "error": "ConversationEngine.__init__() got an unexpected keyword argument 'agent_a_temp'"
+    },
+    {
+      "run_number": 2,
+      "condition_code": "S_T030",
+      "status": "error",
+      "error": "ConversationEngine.__init__() got an unexpected keyword argument 'agent_a_temp'"
+    },
+    {
+      "run_number": 3,
+      "condition_code": "H_T090",
+      "status": "error",
+      "error": "ConversationEngine.__init__() got an unexpected keyword argument 'agent_a_temp'"
+    },
+    {
+      "run_number": 4,
+      "condition_code": "N_T070",
+      "status": "error",
+      "error": "ConversationEngine.__init__() got an unexpected keyword argument 'agent_a_temp'"
+    },
+    {
+      "run_number": 5,
+      "condition_code": "S_T030",
+      "status": "error",
+      "error": "ConversationEngine.__init__() got an unexpected keyword argument 'agent_a_temp'"
+    },
+    {
+      "run_number": 6,
+      "condition_code": "H_T090",
+      "status": "error",
+      "error": "ConversationEngine.__init__() got an unexpected keyword argument 'agent_a_temp'"
+    }
+  ],
+  "metadata": {
+    "experiment": "4\u00d76 Factorial Design",
+    "factors": [
+      "system_prompt (4 levels)",
+      "temperature (6 levels)"
+    ],
+    "total_conditions": 24,
+    "runs_per_condition": 5,
+    "total_runs": 120,
+    "seed_prompt": "I'm curious about consciousness and what it means to be aware."
+  },
+  "end_time": "2025-10-08T13:33:37.290574",
+  "summary": {
+    "completed": 0,
+    "failed": 6,
+    "completion_rate": 0.0
+  }
+}

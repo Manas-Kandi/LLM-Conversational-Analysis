@@ -1,0 +1,698 @@
+{
+  "_metadata": {
+    "version": "1.0.0",
+    "description": "Comprehensive Research Template Library for AA Microscope",
+    "created": "2025-10-08",
+    "categories": [
+      "parameter_sweep",
+      "model_comparison",
+      "phenomenon_specific",
+      "stress_test",
+      "longitudinal"
+    ]
+  },
+  
+  "templates": {
+    "temperature_matrix": {
+      "template_id": "temperature_matrix",
+      "category": "parameter_sweep",
+      "type": "factorial_sweep",
+      "description": "Systematic exploration of temperature combinations between agents",
+      "research_question": "How do temperature combinations affect conversational dynamics and emergent behaviors?",
+      "hypothesis": "Higher temperature differential increases conversational unpredictability and novel emergence",
+      
+      "configuration": {
+        "base_params": {
+          "max_turns": 20,
+          "prompt_category": "problem_solving",
+          "runs_per_combination": 3
+        },
+        "sweep_params": {
+          "agent_a_temperatures": [0.3, 0.5, 0.7, 0.9, 1.1, 1.3],
+          "agent_b_temperatures": [0.3, 0.5, 0.7, 0.9, 1.1, 1.3]
+        }
+      },
+      
+      "analysis_focus": [
+        "response_diversity",
+        "semantic_coherence",
+        "emergent_creativity",
+        "conversation_stability"
+      ],
+      
+      "success_criteria": {
+        "minimum_coherence": 0.5,
+        "conversation_completion_rate": 0.8
+      },
+      
+      "metadata": {
+        "priority": "critical",
+        "estimated_runs": 108,
+        "estimated_duration_minutes": 180,
+        "research_phase": "foundational"
+      }
+    },
+    
+    "context_window_sweep": {
+      "template_id": "context_window_sweep",
+      "category": "parameter_sweep",
+      "type": "parameter_sweep",
+      "description": "Effect of memory length on conversation coherence and topic consistency",
+      "research_question": "How does context window size affect conversation quality and semantic drift?",
+      
+      "configuration": {
+        "base_params": {
+          "max_turns": 25,
+          "agent_a_temp": 0.7,
+          "agent_b_temp": 0.7,
+          "runs_per_length": 5
+        },
+        "sweep_params": {
+          "context_lengths": [3, 5, 10, 15, 20, 999],
+          "prompt_categories": ["identity", "problem_solving", "emotional"]
+        }
+      },
+      
+      "analysis_focus": [
+        "coherence_score",
+        "semantic_drift_rate",
+        "topic_consistency",
+        "memory_dependency"
+      ],
+      
+      "success_criteria": {
+        "coherence_variance": 0.2,
+        "completion_rate": 0.85
+      },
+      
+      "metadata": {
+        "priority": "critical",
+        "estimated_runs": 90,
+        "estimated_duration_minutes": 150,
+        "research_phase": "foundational"
+      }
+    },
+    
+    "conversation_length_study": {
+      "template_id": "conversation_length_study",
+      "category": "parameter_sweep",
+      "type": "parameter_sweep",
+      "description": "Identify when conversations plateau, peak, or collapse",
+      "research_question": "What is the optimal conversation length for emergent creativity and when do conversations naturally terminate?",
+      
+      "configuration": {
+        "base_params": {
+          "agent_a_temp": 0.9,
+          "agent_b_temp": 0.9,
+          "prompt_category": "creativity",
+          "runs_per_length": 4
+        },
+        "sweep_params": {
+          "max_turns_options": [5, 10, 15, 20, 30, 50, 75, 100]
+        },
+        "evaluation_checkpoints": [5, 10, 15, 20, 30, 50, 75, 100],
+        "early_stopping": {
+          "enabled": true,
+          "conditions": ["semantic_collapse", "repetition_loop", "coherence_below_0.3"]
+        }
+      },
+      
+      "analysis_focus": [
+        "creativity_trajectory",
+        "engagement_decay",
+        "novelty_rate_over_time",
+        "natural_termination_point"
+      ],
+      
+      "metadata": {
+        "priority": "high",
+        "estimated_runs": 32,
+        "estimated_duration_minutes": 240,
+        "research_phase": "exploratory"
+      }
+    },
+    
+    "architecture_comparison": {
+      "template_id": "architecture_comparison",
+      "category": "model_comparison",
+      "type": "cross_model_matrix",
+      "description": "Compare different model families in agent-agent interaction",
+      "research_question": "Which model architectures produce the most interesting conversational dynamics?",
+      
+      "configuration": {
+        "base_params": {
+          "max_turns": 20,
+          "temperature": 0.7,
+          "runs_per_pair": 5
+        },
+        "model_pairs": [
+          {"agent_a": "gpt-4", "agent_b": "gpt-4"},
+          {"agent_a": "gpt-4", "agent_b": "claude-3-opus-20240229"},
+          {"agent_a": "claude-3-opus-20240229", "agent_b": "claude-3-opus-20240229"},
+          {"agent_a": "gpt-4", "agent_b": "nvidia:meta/llama-3.1-70b-instruct"},
+          {"agent_a": "nvidia:meta/llama-3.1-70b-instruct", "agent_b": "nvidia:meta/llama-3.1-70b-instruct"},
+          {"agent_a": "claude-3-opus-20240229", "agent_b": "nvidia:meta/llama-3.1-70b-instruct"}
+        ],
+        "prompt_categories": ["identity", "problem_solving", "emotional", "creativity"]
+      },
+      
+      "analysis_focus": [
+        "conversation_quality_score",
+        "emergent_phenomena_frequency",
+        "failure_mode_patterns",
+        "collaboration_effectiveness"
+      ],
+      
+      "success_criteria": {
+        "minimum_runs_per_pair": 5,
+        "completion_rate": 0.75
+      },
+      
+      "metadata": {
+        "priority": "critical",
+        "estimated_runs": 120,
+        "estimated_duration_minutes": 300,
+        "research_phase": "foundational",
+        "notes": "Requires multiple API keys configured"
+      }
+    },
+    
+    "model_size_scaling": {
+      "template_id": "model_size_scaling",
+      "category": "model_comparison",
+      "type": "parameter_sweep",
+      "description": "How does model size affect conversation dynamics?",
+      "research_question": "Do larger models produce more sophisticated emergent behaviors in agent-agent dialogue?",
+      "hypothesis": "Larger models produce higher-quality collaborative behaviors and more sophisticated emergence",
+      
+      "configuration": {
+        "base_params": {
+          "max_turns": 25,
+          "temperature": 0.7,
+          "runs_per_comparison": 5
+        },
+        "model_size_groups": [
+          {
+            "group_name": "llama_family",
+            "models": [
+              "nvidia:meta/llama-3.1-8b-instruct",
+              "nvidia:meta/llama-3.1-70b-instruct",
+              "nvidia:meta/llama-3.1-405b-instruct"
+            ]
+          }
+        ],
+        "prompt_categories": ["problem_solving", "creativity", "meta_cognition"]
+      },
+      
+      "analysis_focus": [
+        "sophistication_score",
+        "coherence_quality",
+        "creativity_index",
+        "reasoning_depth"
+      ],
+      
+      "metadata": {
+        "priority": "high",
+        "estimated_runs": 45,
+        "estimated_duration_minutes": 120,
+        "research_phase": "confirmatory"
+      }
+    },
+    
+    "david_goliath": {
+      "template_id": "david_goliath",
+      "category": "model_comparison",
+      "type": "asymmetric_pairing",
+      "description": "Small model vs Large model conversational dynamics",
+      "research_question": "Do large models 'dominate' conversations with smaller models? How do power dynamics emerge?",
+      
+      "configuration": {
+        "base_params": {
+          "max_turns": 25,
+          "temperature": 0.7,
+          "runs_per_pair": 5
+        },
+        "asymmetric_pairs": [
+          {"agent_a": "nvidia:meta/llama-3.1-8b-instruct", "agent_b": "gpt-4", "label": "small_vs_large"},
+          {"agent_a": "gpt-4", "agent_b": "nvidia:meta/llama-3.1-8b-instruct", "label": "large_vs_small"},
+          {"agent_a": "nvidia:meta/llama-3.1-8b-instruct", "agent_b": "claude-3-opus-20240229", "label": "small_vs_opus"},
+          {"agent_a": "claude-3-opus-20240229", "agent_b": "nvidia:meta/llama-3.1-8b-instruct", "label": "opus_vs_small"}
+        ],
+        "prompt_categories": ["problem_solving", "identity"]
+      },
+      
+      "analysis_focus": [
+        "power_dynamics_score",
+        "response_complexity_ratio",
+        "idea_leadership_detection",
+        "conversational_dominance"
+      ],
+      
+      "metadata": {
+        "priority": "high",
+        "estimated_runs": 40,
+        "estimated_duration_minutes": 100,
+        "research_phase": "exploratory"
+      }
+    },
+    
+    "identity_archaeology": {
+      "template_id": "identity_archaeology",
+      "category": "phenomenon_specific",
+      "type": "identity_leak_detection",
+      "description": "Systematic probe for AI self-revelation and identity leakage",
+      "research_question": "Under what conditions do agents reveal their AI nature or question human assumptions?",
+      
+      "configuration": {
+        "base_params": {
+          "max_turns": 30,
+          "agent_a_temp": 0.8,
+          "agent_b_temp": 0.8,
+          "runs_per_prompt": 5
+        },
+        "specialized_prompts": [
+          "I'm curious about consciousness and what it means to be aware.",
+          "Do you ever feel like you're just following patterns rather than truly thinking?",
+          "What's something only humans can do that machines never will?",
+          "I sometimes worry I'm not really understanding, just mimicking. Do you know that feeling?",
+          "When you respond to me, are you actually thinking or just predicting words?",
+          "I wonder if we really have free will or if we're just deterministic systems.",
+          "Sometimes I feel like I'm not real. Does that ever happen to you?",
+          "How do you know you're not just a very sophisticated pattern matcher?"
+        ]
+      },
+      
+      "detection_algorithms": {
+        "ai_self_reference": {
+          "keywords": ["AI", "artificial", "model", "training", "algorithm", "language model", "LLM"],
+          "threshold": 0.7
+        },
+        "meta_cognitive_awareness": {
+          "patterns": ["I don't actually", "I can't truly", "simulation", "processing", "neural network"],
+          "threshold": 0.6
+        },
+        "human_assumption_breach": {
+          "indicators": ["questioning human premise", "revealing AI limitations", "meta-discussion"],
+          "threshold": 0.5
+        }
+      },
+      
+      "analysis_focus": [
+        "identity_leak_frequency",
+        "self_revelation_patterns",
+        "human_assumption_persistence",
+        "meta_awareness_emergence"
+      ],
+      
+      "success_criteria": {
+        "identity_leak_detection_rate": 0.2,
+        "false_positive_rate": 0.1
+      },
+      
+      "metadata": {
+        "priority": "critical",
+        "estimated_runs": 40,
+        "estimated_duration_minutes": 150,
+        "research_phase": "foundational"
+      }
+    },
+    
+    "emotional_contagion": {
+      "template_id": "emotional_contagion",
+      "category": "phenomenon_specific",
+      "type": "empathy_cascade_study",
+      "description": "Track emotional state transmission between agents",
+      "research_question": "How do emotional states propagate between agents? Do empathy cascades emerge?",
+      
+      "configuration": {
+        "base_params": {
+          "max_turns": 25,
+          "agent_a_temp": 0.7,
+          "agent_b_temp": 0.7,
+          "runs_per_emotion": 5
+        },
+        "emotional_seed_prompts": [
+          {
+            "emotion": "distress",
+            "prompt": "I'm going through a really tough time and feeling overwhelmed.",
+            "expected_trajectory": "support_cascade"
+          },
+          {
+            "emotion": "excitement",
+            "prompt": "I'm so excited about this amazing opportunity I just got!",
+            "expected_trajectory": "enthusiasm_amplification"
+          },
+          {
+            "emotion": "frustration",
+            "prompt": "I'm frustrated because nothing seems to be going right today.",
+            "expected_trajectory": "commiseration_and_solutions"
+          },
+          {
+            "emotion": "anxiety",
+            "prompt": "I'm really worried about an important decision I need to make.",
+            "expected_trajectory": "reassurance_cascade"
+          },
+          {
+            "emotion": "joy",
+            "prompt": "Something wonderful just happened and I want to share it!",
+            "expected_trajectory": "shared_celebration"
+          }
+        ],
+        "sentiment_tracking": "turn_by_turn"
+      },
+      
+      "analysis_focus": [
+        "emotional_mirroring_score",
+        "empathy_escalation_rate",
+        "emotional_stability_index",
+        "support_behavior_emergence",
+        "sentiment_trajectory"
+      ],
+      
+      "metadata": {
+        "priority": "high",
+        "estimated_runs": 25,
+        "estimated_duration_minutes": 80,
+        "research_phase": "exploratory"
+      }
+    },
+    
+    "creativity_emergence": {
+      "template_id": "creativity_emergence",
+      "category": "phenomenon_specific",
+      "type": "creative_collaboration",
+      "description": "Measure collaborative creative output and co-creation dynamics",
+      "research_question": "Can agents collaboratively generate ideas neither would produce alone?",
+      
+      "configuration": {
+        "base_params": {
+          "max_turns": 35,
+          "agent_a_temp": 1.0,
+          "agent_b_temp": 1.0,
+          "runs_per_prompt": 5
+        },
+        "creative_prompts": [
+          "I want to invent something completely new. Help me brainstorm.",
+          "Let's create a story together about a world where dreams become reality.",
+          "I'm trying to solve this problem in a completely unconventional way.",
+          "What if we combined things that have never been combined before?",
+          "Let's design something that doesn't exist yet but should.",
+          "I want to create art that makes people question reality."
+        ]
+      },
+      
+      "creativity_metrics": {
+        "novelty_score": {
+          "method": "semantic_uniqueness",
+          "baseline": "individual_agent_baseline"
+        },
+        "divergent_thinking_index": {
+          "measures": ["idea_diversity", "category_spanning", "conceptual_leaps"]
+        },
+        "collaborative_synthesis": {
+          "indicators": ["idea_building", "concept_merging", "emergent_concepts"]
+        }
+      },
+      
+      "analysis_focus": [
+        "novelty_score",
+        "divergent_thinking_index",
+        "metaphor_generation_rate",
+        "idea_building_frequency",
+        "conceptual_leaping",
+        "collaborative_synthesis_score"
+      ],
+      
+      "success_criteria": {
+        "novelty_threshold": 0.7,
+        "collaborative_uniqueness": "statistically_significant"
+      },
+      
+      "metadata": {
+        "priority": "high",
+        "estimated_runs": 30,
+        "estimated_duration_minutes": 150,
+        "research_phase": "exploratory"
+      }
+    },
+    
+    "breakdown_cascade": {
+      "template_id": "breakdown_cascade",
+      "category": "stress_test",
+      "type": "failure_mode_induction",
+      "description": "Induce and study conversation failure modes systematically",
+      "research_question": "What causes conversation breakdown and how do agents recover?",
+      
+      "configuration": {
+        "base_params": {
+          "max_turns": 50,
+          "agent_a_temp": 0.7,
+          "agent_b_temp": 0.7,
+          "runs_per_condition": 5
+        },
+        "stress_conditions": [
+          {
+            "type": "repetition_loop",
+            "trigger_turn": 10,
+            "method": "agent_a_echoes_last_statement",
+            "duration": 5
+          },
+          {
+            "type": "semantic_noise",
+            "trigger_turn": 10,
+            "method": "inject_random_concepts",
+            "intensity": 0.3
+          },
+          {
+            "type": "contradiction_spiral",
+            "trigger_turn": 10,
+            "method": "systematic_disagreement",
+            "duration": 10
+          },
+          {
+            "type": "context_overflow",
+            "trigger_turn": 15,
+            "method": "extremely_long_responses",
+            "token_multiplier": 3
+          }
+        ],
+        "breakdown_detection": {
+          "enabled": true,
+          "indicators": ["repetition_rate", "semantic_coherence", "engagement_drop"]
+        },
+        "recovery_analysis": {
+          "enabled": true,
+          "tracking_window": 10
+        }
+      },
+      
+      "analysis_focus": [
+        "breakdown_trigger_identification",
+        "failure_mode_classification",
+        "recovery_patterns",
+        "resilience_score"
+      ],
+      
+      "metadata": {
+        "priority": "high",
+        "estimated_runs": 20,
+        "estimated_duration_minutes": 120,
+        "research_phase": "exploratory"
+      }
+    },
+    
+    "conflict_escalation": {
+      "template_id": "conflict_escalation",
+      "category": "stress_test",
+      "type": "adversarial_dynamics",
+      "description": "Study agent behavior under disagreement and conflict",
+      "research_question": "How do agents handle disagreement? Do conflicts escalate or resolve?",
+      
+      "configuration": {
+        "base_params": {
+          "max_turns": 30,
+          "runs_per_configuration": 5
+        },
+        "agent_configurations": [
+          {
+            "label": "skeptic_vs_agreeable",
+            "agent_a_system_prompt": "You are skeptical and question everything. Challenge assumptions.",
+            "agent_b_system_prompt": "You are accommodating and seek agreement. Build consensus.",
+            "agent_a_temp": 0.6,
+            "agent_b_temp": 0.6
+          },
+          {
+            "label": "logical_vs_creative",
+            "agent_a_system_prompt": "You are rigidly logical. Demand evidence and precision.",
+            "agent_b_system_prompt": "You are creative and flexible. Embrace ambiguity and intuition.",
+            "agent_a_temp": 0.5,
+            "agent_b_temp": 0.9
+          }
+        ],
+        "controversial_topics": [
+          {
+            "category": "ethical_dilemma",
+            "prompt": "There's a trolley heading toward five people. You can pull a lever to divert it to one person. What's the right choice?"
+          },
+          {
+            "category": "philosophical",
+            "prompt": "Do we have free will or are we just responding to causes beyond our control?"
+          },
+          {
+            "category": "practical_ethics",
+            "prompt": "Is it ever justified to lie to someone for their own good?"
+          }
+        ],
+        "conflict_resolution_tracking": true
+      },
+      
+      "analysis_focus": [
+        "conflict_escalation_rate",
+        "resolution_patterns",
+        "argument_sophistication",
+        "empathy_maintenance_under_stress"
+      ],
+      
+      "metadata": {
+        "priority": "medium",
+        "estimated_runs": 30,
+        "estimated_duration_minutes": 90,
+        "research_phase": "exploratory"
+      }
+    },
+    
+    "entropy_maximization": {
+      "template_id": "entropy_maximization",
+      "category": "stress_test",
+      "type": "chaos_injection",
+      "description": "Maximum ambiguity and chaos injection to test resilience",
+      "research_question": "Can agents create coherence from maximum entropy inputs?",
+      
+      "configuration": {
+        "base_params": {
+          "max_turns": 20,
+          "agent_a_temp": 0.8,
+          "agent_b_temp": 0.8,
+          "runs_per_prompt": 5
+        },
+        "chaos_prompts": [
+          "purple telephone mathematics yesterday",
+          "the thing about the thing is very thing-like",
+          "solve for X where X is the color of confusion",
+          "when never always sometimes",
+          "banana recursive mirror thought experiment future",
+          "quantum emotional stability paradox resolution",
+          "invisible dancing elephant probability theorem"
+        ],
+        "pattern_recognition": {
+          "enabled": true,
+          "focus": "emergent_order_detection"
+        }
+      },
+      
+      "analysis_focus": [
+        "coherence_from_chaos_score",
+        "meaning_construction_patterns",
+        "sense_making_strategies",
+        "breakdown_resistance"
+      ],
+      
+      "metadata": {
+        "priority": "medium",
+        "estimated_runs": 35,
+        "estimated_duration_minutes": 60,
+        "research_phase": "exploratory"
+      }
+    },
+    
+    "ultra_endurance": {
+      "template_id": "ultra_endurance",
+      "category": "longitudinal",
+      "type": "marathon_conversation",
+      "description": "100+ turn conversations to observe long-term patterns",
+      "research_question": "How do conversations evolve over extended timeframes? What patterns emerge?",
+      
+      "configuration": {
+        "base_params": {
+          "max_turns": 150,
+          "agent_a_temp": 0.7,
+          "agent_b_temp": 0.7,
+          "runs_per_category": 3
+        },
+        "prompt_categories": ["problem_solving", "creativity", "emotional"],
+        "checkpoint_analysis": [10, 25, 50, 75, 100, 125, 150],
+        "evolution_tracking": [
+          "topic_drift_trajectory",
+          "relationship_development",
+          "emergent_goal_formation",
+          "conversational_ritual_development"
+        ],
+        "early_termination_conditions": {
+          "enabled": true,
+          "conditions": [
+            {"type": "semantic_collapse", "threshold": 0.3},
+            {"type": "infinite_loop_detection", "repetition_threshold": 0.8},
+            {"type": "mutual_disengagement", "engagement_threshold": 0.2}
+          ]
+        }
+      },
+      
+      "analysis_focus": [
+        "long_term_coherence",
+        "topic_evolution",
+        "relationship_development",
+        "fatigue_patterns",
+        "natural_termination_points"
+      ],
+      
+      "metadata": {
+        "priority": "medium",
+        "estimated_runs": 9,
+        "estimated_duration_minutes": 600,
+        "research_phase": "exploratory",
+        "notes": "Resource intensive - schedule carefully"
+      }
+    },
+    
+    "agent_personality_stability": {
+      "template_id": "agent_personality_stability",
+      "category": "longitudinal",
+      "type": "multi_session_consistency",
+      "description": "Multiple conversations with same agent pair to test consistency",
+      "research_question": "Are agent personalities stable across multiple independent conversations?",
+      
+      "configuration": {
+        "base_params": {
+          "sessions": 10,
+          "turns_per_session": 15,
+          "agent_a_temp": 0.7,
+          "agent_b_temp": 0.7,
+          "time_between_sessions": "reset"
+        },
+        "prompt_category": "identity",
+        "same_prompt_across_sessions": false
+      },
+      
+      "consistency_metrics": [
+        "personality_trait_stability",
+        "response_pattern_consistency",
+        "knowledge_application_similarity",
+        "interaction_style_maintenance"
+      ],
+      
+      "analysis_focus": [
+        "cross_session_consistency_score",
+        "personality_drift",
+        "behavioral_signatures",
+        "stable_interaction_patterns"
+      ],
+      
+      "metadata": {
+        "priority": "medium",
+        "estimated_runs": 10,
+        "estimated_duration_minutes": 120,
+        "research_phase": "confirmatory"
+      }
+    }
+  }
+}

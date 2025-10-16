@@ -1,0 +1,13 @@
+{
+  "total_conversations": 120,
+  "total_messages": 3600,
+  "total_tokens": 20824320,
+  "avg_turns": 30.0,
+  "median_turns": 30.0,
+  "max_turns": 30,
+  "special_token_conversations": 70,
+  "identity_leak_conversations": 10,
+  "collapse_conversations": 2,
+  "reset_conversations": 60,
+  "apology_conversations": 46
+}

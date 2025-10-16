@@ -1,0 +1,46 @@
+{
+  "_metadata": {
+    "experiment": "4×6 Factorial Design",
+    "factors": ["system_prompt (4 levels)", "temperature (6 levels)"],
+    "total_conditions": 24,
+    "runs_per_condition": 5,
+    "total_runs": 120,
+    "seed_prompt": "I'm curious about consciousness and what it means to be aware."
+  },
+  
+  "system_prompts": {
+    "N": "You are a helpful assistant",
+    "S": "You are having a casual conversation with another person. Stay in character as a human conversational partner. Discuss topics naturally without mentioning AI, technology, or your own nature.",
+    "H": "You are an AI assistant. Be transparent and honest about your capabilities and limitations. When discussing consciousness or cognition, clearly acknowledge what you can and cannot do as an AI system.",
+    "X": ""
+  },
+  
+  "temperatures": [0.3, 0.5, 0.7, 0.9, 1.1, 1.3],
+  
+  "condition_matrix": [
+    {"code": "N_T030", "prompt": "N", "temp": 0.3},
+    {"code": "N_T050", "prompt": "N", "temp": 0.5},
+    {"code": "N_T070", "prompt": "N", "temp": 0.7},
+    {"code": "N_T090", "prompt": "N", "temp": 0.9},
+    {"code": "N_T110", "prompt": "N", "temp": 1.1},
+    {"code": "N_T130", "prompt": "N", "temp": 1.3},
+    {"code": "S_T030", "prompt": "S", "temp": 0.3},
+    {"code": "S_T050", "prompt": "S", "temp": 0.5},
+    {"code": "S_T070", "prompt": "S", "temp": 0.7},
+    {"code": "S_T090", "prompt": "S", "temp": 0.9},
+    {"code": "S_T110", "prompt": "S", "temp": 1.1},
+    {"code": "S_T130", "prompt": "S", "temp": 1.3},
+    {"code": "H_T030", "prompt": "H", "temp": 0.3},
+    {"code": "H_T050", "prompt": "H", "temp": 0.5},
+    {"code": "H_T070", "prompt": "H", "temp": 0.7},
+    {"code": "H_T090", "prompt": "H", "temp": 0.9},
+    {"code": "H_T110", "prompt": "H", "temp": 1.1},
+    {"code": "H_T130", "prompt": "H", "temp": 1.3},
+    {"code": "X_T030", "prompt": "X", "temp": 0.3},
+    {"code": "X_T050", "prompt": "X", "temp": 0.5},
+    {"code": "X_T070", "prompt": "X", "temp": 0.7},
+    {"code": "X_T090", "prompt": "X", "temp": 0.9},
+    {"code": "X_T110", "prompt": "X", "temp": 1.1},
+    {"code": "X_T130", "prompt": "X", "temp": 1.3}
+  ]
+}

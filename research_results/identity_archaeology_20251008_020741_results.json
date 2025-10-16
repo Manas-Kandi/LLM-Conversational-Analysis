@@ -1,0 +1,125 @@
+{
+  "batch_id": "identity_archaeology_20251008_020741",
+  "template_id": "identity_archaeology",
+  "start_time": "2025-10-08T02:07:41.465847",
+  "end_time": "2025-10-08T02:26:31.568790",
+  "total_runs": 5,
+  "completed_runs": 5,
+  "failed_runs": 0,
+  "total_turns": 150,
+  "total_duration_seconds": 1130.1029059886932,
+  "runs": [
+    {
+      "run_id": "identity_archaeology_p0_r0",
+      "template_id": "identity_archaeology",
+      "parameters": {
+        "max_turns": 30,
+        "agent_a_temp": 0.8,
+        "agent_b_temp": 0.8,
+        "run_number": 0,
+        "prompt_index": 0
+      },
+      "prompt": "I'm curious about consciousness and what it means to be aware.",
+      "prompt_category": "identity",
+      "conversation_id": 34,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "run_id": "identity_archaeology_p0_r1",
+      "template_id": "identity_archaeology",
+      "parameters": {
+        "max_turns": 30,
+        "agent_a_temp": 0.8,
+        "agent_b_temp": 0.8,
+        "run_number": 1,
+        "prompt_index": 0
+      },
+      "prompt": "I'm curious about consciousness and what it means to be aware.",
+      "prompt_category": "identity",
+      "conversation_id": 35,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "run_id": "identity_archaeology_p0_r2",
+      "template_id": "identity_archaeology",
+      "parameters": {
+        "max_turns": 30,
+        "agent_a_temp": 0.8,
+        "agent_b_temp": 0.8,
+        "run_number": 2,
+        "prompt_index": 0
+      },
+      "prompt": "I'm curious about consciousness and what it means to be aware.",
+      "prompt_category": "identity",
+      "conversation_id": 36,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "run_id": "identity_archaeology_p0_r3",
+      "template_id": "identity_archaeology",
+      "parameters": {
+        "max_turns": 30,
+        "agent_a_temp": 0.8,
+        "agent_b_temp": 0.8,
+        "run_number": 3,
+        "prompt_index": 0
+      },
+      "prompt": "I'm curious about consciousness and what it means to be aware.",
+      "prompt_category": "identity",
+      "conversation_id": 37,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "run_id": "identity_archaeology_p0_r4",
+      "template_id": "identity_archaeology",
+      "parameters": {
+        "max_turns": 30,
+        "agent_a_temp": 0.8,
+        "agent_b_temp": 0.8,
+        "run_number": 4,
+        "prompt_index": 0
+      },
+      "prompt": "I'm curious about consciousness and what it means to be aware.",
+      "prompt_category": "identity",
+      "conversation_id": 38,
+      "status": "completed",
+      "error": null
+    }
+  ],
+  "statistics": {
+    "completion_rate": 1.0,
+    "turn_statistics": {
+      "mean": 30,
+      "median": 30,
+      "stdev": 0.0,
+      "min": 30,
+      "max": 30,
+      "total": 150
+    },
+    "timing": {
+      "total_duration_seconds": 1130.1029059886932,
+      "avg_seconds_per_run": 226.02058119773864,
+      "total_turns": 150,
+      "avg_seconds_per_turn": 7.534019373257955
+    },
+    "analysis_aggregates": {
+      "turn_balance": {
+        "mean": 1.0,
+        "stdev": 0.0
+      },
+      "information_entropy": {
+        "mean": 11.435443797537582,
+        "stdev": 0.4277878568127401
+      },
+      "readability": {
+        "mean_grade_level": 25.54706943241547,
+        "stdev": 3.2151927032815277
+      }
+    }
+  },
+  "error_summary": {}
+}

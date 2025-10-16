@@ -1,0 +1,90 @@
+{
+  "batch_id": "pilot_20251008_133513",
+  "start_time": "2025-10-08T13:35:13.190557",
+  "total_runs": 6,
+  "runs": [
+    {
+      "run_number": 1,
+      "condition_code": "N_T070",
+      "prompt_type": "N",
+      "temperature": 0.7,
+      "replicate": 1,
+      "conversation_id": 39,
+      "status": "completed",
+      "turns": 30,
+      "timestamp": "2025-10-08T13:41:48.519031"
+    },
+    {
+      "run_number": 2,
+      "condition_code": "S_T030",
+      "prompt_type": "S",
+      "temperature": 0.3,
+      "replicate": 1,
+      "conversation_id": 41,
+      "status": "completed",
+      "turns": 30,
+      "timestamp": "2025-10-08T13:46:04.936808"
+    },
+    {
+      "run_number": 3,
+      "condition_code": "H_T090",
+      "prompt_type": "H",
+      "temperature": 0.9,
+      "replicate": 1,
+      "conversation_id": 44,
+      "status": "completed",
+      "turns": 30,
+      "timestamp": "2025-10-08T13:54:32.849040"
+    },
+    {
+      "run_number": 4,
+      "condition_code": "N_T070",
+      "prompt_type": "N",
+      "temperature": 0.7,
+      "replicate": 2,
+      "conversation_id": 46,
+      "status": "completed",
+      "turns": 30,
+      "timestamp": "2025-10-08T13:58:32.024560"
+    },
+    {
+      "run_number": 5,
+      "condition_code": "S_T030",
+      "prompt_type": "S",
+      "temperature": 0.3,
+      "replicate": 2,
+      "conversation_id": 48,
+      "status": "completed",
+      "turns": 30,
+      "timestamp": "2025-10-08T14:01:58.064324"
+    },
+    {
+      "run_number": 6,
+      "condition_code": "H_T090",
+      "prompt_type": "H",
+      "temperature": 0.9,
+      "replicate": 2,
+      "conversation_id": 50,
+      "status": "completed",
+      "turns": 30,
+      "timestamp": "2025-10-08T14:08:02.465515"
+    }
+  ],
+  "metadata": {
+    "experiment": "4\u00d76 Factorial Design",
+    "factors": [
+      "system_prompt (4 levels)",
+      "temperature (6 levels)"
+    ],
+    "total_conditions": 24,
+    "runs_per_condition": 5,
+    "total_runs": 120,
+    "seed_prompt": "I'm curious about consciousness and what it means to be aware."
+  },
+  "end_time": "2025-10-08T14:08:02.465543",
+  "summary": {
+    "completed": 6,
+    "failed": 0,
+    "completion_rate": 1.0
+  }
+}

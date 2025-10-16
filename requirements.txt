@@ -1,0 +1,34 @@
+# Core dependencies
+python-dotenv>=1.0.0
+pydantic>=2.10.0
+
+# LLM APIs
+openai>=1.12.0
+anthropic>=0.18.1
+
+# Terminal UI
+textual>=0.50.1
+rich>=13.7.0
+
+# Database
+sqlalchemy>=2.0.25
+alembic>=1.13.1
+
+# Data analysis - Python 3.13 compatible
+pandas>=2.2.0
+numpy>=1.26.0
+
+# Utilities
+python-dateutil>=2.8.2
+click>=8.1.7
+tqdm>=4.66.1
+
+# Text processing - Python 3.13 compatible
+tiktoken>=0.8.0
+nltk>=3.8.1
+
+# Visualization (optional)
+plotly>=5.18.0
+
+# Web viewer
+flask>=3.0.0
