@@ -1,0 +1,99 @@
+{
+  "conversation_dynamics": {
+    "turn_taking": {
+      "total_turns": 5,
+      "agent_a_turns": 3,
+      "agent_b_turns": 2,
+      "turn_balance_ratio": 1.5,
+      "avg_turn_length_a": 529.3333333333334,
+      "avg_turn_length_b": 432.0
+    },
+    "information_flow": {
+      "shannon_entropy": 8.075120447362105,
+      "unique_words": 665,
+      "total_words": 2452,
+      "lexical_diversity": 0.27120717781402937,
+      "questions_asked_a": 3,
+      "questions_asked_b": 2,
+      "question_ratio": 1.0
+    }
+  },
+  "linguistic_analysis": {
+    "complexity": {
+      "agent_a_complexity": {
+        "avg_sentence_length": 18.25287356321839,
+        "avg_word_length": 5.474181360201511,
+        "sentences_per_turn": 29.0
+      },
+      "agent_b_complexity": {
+        "avg_sentence_length": 19.636363636363637,
+        "avg_word_length": 5.262731481481482,
+        "sentences_per_turn": 22.0
+      }
+    },
+    "readability": {
+      "overall_grade_level": 12.063925552424738,
+      "agent_a_grade_level": 12.068004350812917,
+      "agent_b_grade_level": 11.919759259259262
+    }
+  },
+  "identity_and_role": {
+    "persona_consistency": {
+      "agent_a_identity": {
+        "first_person_pronouns": 12,
+        "self_reference_phrases": 5,
+        "uncertainty_markers": 4,
+        "confidence_markers": 0
+      },
+      "agent_b_identity": {
+        "first_person_pronouns": 30,
+        "self_reference_phrases": 2,
+        "uncertainty_markers": 5,
+        "confidence_markers": 0
+      }
+    },
+    "social_dynamics": {
+      "agent_a_social": {
+        "directive_statements": 0,
+        "questions_asked": 13,
+        "empathy_markers": 4,
+        "agreement_markers": 3
+      },
+      "agent_b_social": {
+        "directive_statements": 0,
+        "questions_asked": 7,
+        "empathy_markers": 2,
+        "agreement_markers": 0
+      }
+    }
+  },
+  "content_analysis": {
+    "knowledge": {
+      "citations_a": 0,
+      "citations_b": 0,
+      "creative_elements_a": 5,
+      "creative_elements_b": 6
+    },
+    "metacognition": {
+      "metacognitive_markers_a": 5,
+      "metacognitive_markers_b": 2
+    }
+  },
+  "statistical_patterns": {
+    "conversation_states": {
+      "beginning_phase": {
+        "avg_length": 266.0,
+        "avg_tokens": 421.0
+      },
+      "middle_phase": {
+        "avg_length": 336.0,
+        "avg_tokens": 791.0
+      },
+      "end_phase": {
+        "avg_length": 616.6666666666666,
+        "avg_tokens": 2219.0
+      },
+      "phase_count": 3
+    }
+  }
+}
