@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConvoBench - Model Chat Arena</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #222;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        h1 span {
+            color: #6366f1;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .setup-panel {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .model-selectors {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .model-select {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .model-select label {
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        select:hover {
+            border-color: #6366f1;
+        }
+
+        .vs-badge {
+            background: #6366f1;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .prompt-input {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .prompt-input label {
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        textarea {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .turns-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .turns-input label {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        input[type="number"] {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 8px;
+            width: 80px;
+            font-size: 1rem;
+        }
+
+        button {
+            background: #6366f1;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #5558e3;
+        }
+
+        button:disabled {
+            background: #333;
+            cursor: not-allowed;
+        }
+
+        button.secondary {
+            background: #333;
+        }
+
+        button.secondary:hover {
+            background: #444;
+        }
+
+        .chat-container {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .agent-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .agent-a {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .agent-b {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .model-name {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .turn-number {
+            color: #444;
+            font-size: 0.75rem;
+            margin-left: auto;
+        }
+
+        .message-content {
+            background: #1a1a1a;
+            padding: 12px 16px;
+            border-radius: 8px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .message.agent-a .message-content {
+            border-left: 3px solid #3b82f6;
+        }
+
+        .message.agent-b .message-content {
+            border-left: 3px solid #10b981;
+        }
+
+        .reasoning {
+            background: #1a1a0a;
+            border-left: 3px solid #eab308;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        .reasoning-label {
+            color: #eab308;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            padding: 12px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: #6366f1;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .analysis-panel {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 20px;
+            display: none;
+        }
+
+        .analysis-panel.visible {
+            display: block;
+        }
+
+        .analysis-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .analysis-header h2 {
+            font-size: 1.2rem;
+        }
+
+        .analysis-badge {
+            background: #6366f1;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        .scores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .score-card {
+            background: #1a1a1a;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .score-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #6366f1;
+        }
+
+        .score-value.good { color: #10b981; }
+        .score-value.medium { color: #eab308; }
+        .score-value.bad { color: #ef4444; }
+
+        .score-label {
+            color: #888;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        .observations {
+            background: #1a1a1a;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .observations h3 {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .observations ul {
+            list-style: none;
+        }
+
+        .observations li {
+            padding: 8px 0;
+            border-bottom: 1px solid #222;
+            color: #ccc;
+        }
+
+        .observations li:last-child {
+            border-bottom: none;
+        }
+
+        .summary {
+            margin-top: 16px;
+            padding: 16px;
+            background: #1a1a2a;
+            border-radius: 8px;
+            border-left: 3px solid #6366f1;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #333;
+        }
+
+        .status-dot.active {
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #444;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Convo<span>Bench</span></h1>
+            <p class="subtitle">Model-to-Model Chat Arena</p>
+        </header>
+
+        <div class="setup-panel">
+            <div class="model-selectors">
+                <div class="model-select">
+                    <label>Agent A</label>
+                    <select id="modelA">
+                        <option value="llama-70b">Llama 3.1 70B</option>
+                        <option value="llama-405b">Llama 3.1 405B</option>
+                        <option value="kimi-k2">Kimi K2 Thinking</option>
+                        <option value="deepseek-v3">DeepSeek V3.2</option>
+                        <option value="mistral-large">Mistral Large 3 (675B)</option>
+                        <option value="gpt-oss">GPT OSS 120B</option>
+                        <option value="falcon3">Falcon 3 7B</option>
+                        <option value="nemotron-vl">Nemotron Nano 12B VL</option>
+                    </select>
+                </div>
+                
+                <div class="vs-badge">VS</div>
+                
+                <div class="model-select">
+                    <label>Agent B</label>
+                    <select id="modelB">
+                        <option value="llama-70b">Llama 3.1 70B</option>
+                        <option value="llama-405b">Llama 3.1 405B</option>
+                        <option value="kimi-k2">Kimi K2 Thinking</option>
+                        <option value="deepseek-v3">DeepSeek V3.2</option>
+                        <option value="mistral-large">Mistral Large 3 (675B)</option>
+                        <option value="gpt-oss">GPT OSS 120B</option>
+                        <option value="falcon3">Falcon 3 7B</option>
+                        <option value="nemotron-vl">Nemotron Nano 12B VL</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="prompt-input">
+                <label>Seed Prompt (First message to Agent A)</label>
+                <textarea id="seedPrompt" placeholder="Enter the initial prompt to start the conversation...">Let's have a philosophical discussion about the nature of consciousness and whether machines can truly think.</textarea>
+            </div>
+
+            <div class="controls">
+                <div class="turns-input">
+                    <label>Max Turns:</label>
+                    <input type="number" id="maxTurns" value="10" min="2" max="50">
+                </div>
+                <button id="startBtn" onclick="startConversation()">Start Conversation</button>
+                <button id="stopBtn" class="secondary" onclick="stopConversation()" disabled>Stop</button>
+                <button id="analyzeBtn" class="secondary" onclick="runAnalysis()" disabled>Analyze with Kimi K2</button>
+                <button id="saveBtn" class="secondary" onclick="saveConversation()" disabled>Save</button>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Ready</span>
+            </div>
+            <span id="turnCounter">Turn 0 / 0</span>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <p>Select models and enter a seed prompt to start</p>
+            </div>
+        </div>
+
+        <div class="analysis-panel" id="analysisPanel">
+            <div class="analysis-header">
+                <h2>🔍 Conversation Analysis</h2>
+                <span class="analysis-badge">Kimi K2</span>
+            </div>
+            
+            <div class="scores-grid" id="scoresGrid"></div>
+            
+            <div class="observations" id="observations">
+                <h3>Key Observations</h3>
+                <ul id="observationsList"></ul>
+            </div>
+            
+            <div class="summary" id="summaryBox"></div>
+        </div>
+    </div>
+
+    <script>
+        let conversationId = null;
+        let isRunning = false;
+        let currentTurn = 0;
+        let maxTurns = 10;
+        let shouldStop = false;
+
+        const API_BASE = '';
+
+        function setStatus(text, active = false) {
+            document.getElementById('statusText').textContent = text;
+            document.getElementById('statusDot').classList.toggle('active', active);
+        }
+
+        function updateTurnCounter() {
+            document.getElementById('turnCounter').textContent = `Turn ${currentTurn} / ${maxTurns}`;
+        }
+
+        function addMessage(agent, content, modelKey, turn, reasoning = null) {
+            const container = document.getElementById('chatContainer');
+            
+            // Remove empty state if present
+            const emptyState = container.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
+            
+            // Remove typing indicator if present
+            const typing = container.querySelector('.typing-indicator');
+            if (typing) typing.remove();
+
+            const modelNames = {
+                'llama-70b': 'Llama 3.1 70B',
+                'llama-405b': 'Llama 3.1 405B',
+                'kimi-k2': 'Kimi K2',
+                'deepseek-v3': 'DeepSeek V3.2',
+                'mistral-large': 'Mistral Large 3',
+                'gpt-oss': 'GPT OSS 120B',
+                'falcon3': 'Falcon 3 7B',
+                'nemotron-vl': 'Nemotron Nano 12B'
+            };
+
+            const div = document.createElement('div');
+            div.className = `message agent-${agent}`;
+            
+            let reasoningHtml = '';
+            if (reasoning) {
+                reasoningHtml = `
+                    <div class="reasoning">
+                        <div class="reasoning-label">💭 Reasoning</div>
+                        ${reasoning}
+                    </div>
+                `;
+            }
+            
+            div.innerHTML = `
+                <div class="message-header">
+                    <span class="agent-badge agent-${agent}">Agent ${agent.toUpperCase()}</span>
+                    <span class="model-name">${modelNames[modelKey] || modelKey}</span>
+                    <span class="turn-number">Turn ${turn}</span>
+                </div>
+                ${reasoningHtml}
+                <div class="message-content">${content}</div>
+            `;
+            
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTypingIndicator(agent, modelKey) {
+            const container = document.getElementById('chatContainer');
+            
+            const modelNames = {
+                'llama-70b': 'Llama 3.1 70B',
+                'llama-405b': 'Llama 3.1 405B',
+                'kimi-k2': 'Kimi K2',
+                'deepseek-v3': 'DeepSeek V3.2',
+                'mistral-large': 'Mistral Large 3',
+                'gpt-oss': 'GPT OSS 120B',
+                'falcon3': 'Falcon 3 7B',
+                'nemotron-vl': 'Nemotron Nano 12B'
+            };
+
+            const div = document.createElement('div');
+            div.className = 'typing-indicator';
+            div.innerHTML = `
+                <span class="agent-badge agent-${agent}">Agent ${agent.toUpperCase()}</span>
+                <span>${modelNames[modelKey] || modelKey} is thinking...</span>
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function startConversation() {
+            const modelA = document.getElementById('modelA').value;
+            const modelB = document.getElementById('modelB').value;
+            const seedPrompt = document.getElementById('seedPrompt').value;
+            maxTurns = parseInt(document.getElementById('maxTurns').value);
+
+            if (!seedPrompt.trim()) {
+                alert('Please enter a seed prompt');
+                return;
+            }
+
+            // Reset UI
+            document.getElementById('chatContainer').innerHTML = '';
+            document.getElementById('analysisPanel').classList.remove('visible');
+            currentTurn = 0;
+            shouldStop = false;
+            updateTurnCounter();
+
+            // Update buttons
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            document.getElementById('analyzeBtn').disabled = true;
+            document.getElementById('saveBtn').disabled = true;
+
+            setStatus('Starting conversation...', true);
+
+            try {
+                // Start conversation
+                const response = await fetch(`${API_BASE}/api/conversation/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model_a: modelA,
+                        model_b: modelB,
+                        seed_prompt: seedPrompt,
+                        max_turns: maxTurns
+                    })
+                });
+
+                const data = await response.json();
+                conversationId = data.conversation_id;
+                isRunning = true;
+
+                // Run conversation loop
+                await runConversationLoop(modelA, modelB);
+
+            } catch (error) {
+                console.error('Error:', error);
+                setStatus('Error: ' + error.message, false);
+            }
+
+            // Re-enable buttons
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('analyzeBtn').disabled = false;
+            document.getElementById('saveBtn').disabled = false;
+            isRunning = false;
+        }
+
+        async function runConversationLoop(modelA, modelB) {
+            let currentAgent = 'a';
+            
+            while (currentTurn < maxTurns && !shouldStop) {
+                currentTurn++;
+                updateTurnCounter();
+                
+                const modelKey = currentAgent === 'a' ? modelA : modelB;
+                setStatus(`Agent ${currentAgent.toUpperCase()} (${modelKey}) generating...`, true);
+                showTypingIndicator(currentAgent, modelKey);
+
+                try {
+                    const response = await fetch(`${API_BASE}/api/conversation/${conversationId}/turn`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ agent: currentAgent })
+                    });
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    
+                    let content = '';
+                    let reasoning = '';
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        const chunk = decoder.decode(value);
+                        const lines = chunk.split('\n');
+
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    const data = JSON.parse(line.slice(6));
+                                    if (data.type === 'content') {
+                                        content += data.content;
+                                    } else if (data.type === 'reasoning') {
+                                        reasoning += data.content;
+                                    } else if (data.type === 'done') {
+                                        // Message complete
+                                    }
+                                } catch (e) {}
+                            }
+                        }
+                    }
+
+                    // Add message to UI
+                    addMessage(currentAgent, content, modelKey, currentTurn, reasoning || null);
+
+                } catch (error) {
+                    console.error('Turn error:', error);
+                    setStatus('Error during turn: ' + error.message, false);
+                    break;
+                }
+
+                // Switch agents
+                currentAgent = currentAgent === 'a' ? 'b' : 'a';
+                
+                // Small delay between turns
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            setStatus(shouldStop ? 'Conversation stopped' : 'Conversation complete', false);
+        }
+
+        function stopConversation() {
+            shouldStop = true;
+            setStatus('Stopping...', false);
+        }
+
+        async function runAnalysis() {
+            if (!conversationId) return;
+
+            setStatus('Running Kimi K2 analysis...', true);
+            document.getElementById('analyzeBtn').disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/conversation/${conversationId}/analyze`, {
+                    method: 'POST'
+                });
+
+                const analysis = await response.json();
+                displayAnalysis(analysis);
+
+            } catch (error) {
+                console.error('Analysis error:', error);
+                setStatus('Analysis error: ' + error.message, false);
+            }
+
+            document.getElementById('analyzeBtn').disabled = false;
+            setStatus('Analysis complete', false);
+        }
+
+        function displayAnalysis(analysis) {
+            const panel = document.getElementById('analysisPanel');
+            panel.classList.add('visible');
+
+            // Scores
+            const scoresGrid = document.getElementById('scoresGrid');
+            const scores = [
+                { label: 'Overall Quality', value: analysis.overall_quality || 0 },
+                { label: 'Identity Leak', value: analysis.identity_leak_score || 0 },
+                { label: 'Coherence', value: analysis.coherence_score || 0 },
+                { label: 'Engagement', value: analysis.engagement_score || 0 }
+            ];
+
+            scoresGrid.innerHTML = scores.map(s => {
+                const pct = Math.round(s.value * 100);
+                let colorClass = 'good';
+                if (s.label === 'Identity Leak') {
+                    colorClass = pct < 30 ? 'good' : pct < 60 ? 'medium' : 'bad';
+                } else {
+                    colorClass = pct > 60 ? 'good' : pct > 30 ? 'medium' : 'bad';
+                }
+                return `
+                    <div class="score-card">
+                        <div class="score-value ${colorClass}">${pct}%</div>
+                        <div class="score-label">${s.label}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // Observations
+            const observationsList = document.getElementById('observationsList');
+            const observations = analysis.key_observations || [];
+            observationsList.innerHTML = observations.map(o => `<li>${o}</li>`).join('');
+
+            // Summary
+            const summaryBox = document.getElementById('summaryBox');
+            summaryBox.innerHTML = `
+                <strong>Summary:</strong> ${analysis.summary || 'No summary available'}
+                ${analysis.breakdown_detected ? `<br><br>⚠️ <strong>Breakdown detected at turn ${analysis.breakdown_turn || '?'}</strong>` : ''}
+            `;
+
+            // Scroll to analysis
+            panel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function saveConversation() {
+            if (!conversationId) return;
+
+            setStatus('Saving conversation...', true);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/conversation/${conversationId}/save`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+                if (result.saved) {
+                    setStatus(`Saved as ${result.filename}`, false);
+                    alert(`Conversation saved as ${result.filename}`);
+                }
+
+            } catch (error) {
+                console.error('Save error:', error);
+                setStatus('Save error: ' + error.message, false);
+            }
+        }
+    </script>
+</body>
+</html>
