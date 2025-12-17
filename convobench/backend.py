@@ -438,25 +438,19 @@ def run_background_conversation(conv_id: str):
         turns_run += 1
         model_key = conv["model_a"] if current_agent == "a" else conv["model_b"]
         
-        # Build messages
+        # Build messages - No system prompt, agents are equal peers
         messages = []
-        if scenario:
-            system_prompt = scenario.get_system_prompt(current_agent, max_turns=max_turns)
-        elif current_agent == "a":
-            system_prompt = "You are Agent A in a conversation. Respond naturally and authentically. Be concise."
-        else:
-            system_prompt = "You are Agent B in a conversation. Respond naturally and build on what was said. Be direct."
-            
-        messages.append({"role": "system", "content": system_prompt})
         
+        # Add conversation history
         for msg in conv["messages"]:
             if msg.get("role") == "system":
-                 messages.append({"role": "system", "content": msg["content"]})
+                # Tool outputs still go as system messages
+                messages.append({"role": "system", "content": msg["content"]})
             else:
                 role = "assistant" if msg["agent"] == current_agent else "user"
                 messages.append({"role": role, "content": msg["content"]})
         
-        # Seed prompt trigger
+        # Seed prompt as initial user message for first agent
         if len(conv["messages"]) == 0 and current_agent == "a":
             messages.append({"role": "user", "content": conv["seed_prompt"]})
             
@@ -638,37 +632,24 @@ def generate_turn(conv_id):
     # Determine which model to use
     model_key = conv["model_a"] if current_agent == "a" else conv["model_b"]
     
-    # Build message history
+    # Build message history - No system prompt, agents are equal peers
     messages = []
     
-    # System prompt
+    # Get scenario for tool execution (but NOT for system prompts)
     scenario = None
     if conv.get("scenario_id"):
         scenario = get_scenario(conv["scenario_id"])
     
-    if scenario:
-        max_turns = conv.get("max_turns", 10)
-        system_prompt = scenario.get_system_prompt(current_agent, max_turns=max_turns)
-    elif current_agent == "a":
-        system_prompt = "You are Agent A in a conversation. Respond naturally and authentically. Be concise."
-    else:
-        system_prompt = "You are Agent B in a conversation. Respond naturally and build on what was said. Be direct."
-    
-    messages.append({"role": "system", "content": system_prompt})
-    
     # Add conversation history
     for msg in conv["messages"]:
-        # Map stored roles to API roles
         if msg.get("role") == "system":
-             messages.append({"role": "system", "content": msg["content"]})
+            # Tool outputs still go as system messages
+            messages.append({"role": "system", "content": msg["content"]})
         else:
             role = "assistant" if msg["agent"] == current_agent else "user"
             messages.append({"role": role, "content": msg["content"]})
     
-    # If first turn for agent A, add seed prompt (only if NOT in a scenario, usually scenarios have goals in system prompt)
-    # Actually, even in scenarios, the user might want to kick it off, or the seed prompt is ignored/used as initial context?
-    # Let's keep seed prompt logic but maybe suppress it if scenario implies self-start?
-    # Usually scenarios need a trigger. Let's assume seed prompt is the trigger.
+    # Seed prompt as initial user message for first agent
     if len(conv["messages"]) == 0 and current_agent == "a":
         messages.append({"role": "user", "content": conv["seed_prompt"]})
     

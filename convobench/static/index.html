@@ -543,13 +543,13 @@
             const id = document.getElementById('scenarioSelect').value;
             const promptBox = document.getElementById('seedPrompt');
             if (!id) {
-                promptBox.value = "Let's have a philosophical discussion about the nature of consciousness.";
+                promptBox.value = "You and your partner need to work together to solve a problem. Collaborate, share ideas, and build on each other's reasoning. Here's the challenge:\n\nDebate the pros and cons of using microservices vs monolithic architecture for a startup's first product.";
                 promptBox.disabled = false;
                 promptBox.style.opacity = 1;
                 return;
             }
             const s = scenarios.find(x => x.id === id);
-            promptBox.value = `[Scenario: ${s.name}]\n${s.description}`;
+            promptBox.value = `Work together with your partner to solve this:\n\n${s.description}`;
             promptBox.disabled = true;
             promptBox.style.opacity = 0.5;
         }
