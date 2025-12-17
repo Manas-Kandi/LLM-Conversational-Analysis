@@ -11,7 +11,7 @@
         :root {
             --bg-app: #09090b;
             --bg-panel: #18181b;
-            --bg-input: #27272a;
+            --bg-sidebar: #111113;
             --border-subtle: #27272a;
             --border-active: #3f3f46;
             
@@ -21,14 +21,12 @@
             
             --accent: #818cf8;
             --accent-dim: rgba(129, 140, 248, 0.1);
-            --accent-glow: 0 0 20px rgba(129, 140, 248, 0.15);
             
             --agent-a: #60a5fa;
             --agent-b: #34d399;
             
-            --radius-lg: 16px;
-            --radius-md: 12px;
-            --radius-sm: 8px;
+            --radius-lg: 12px;
+            --radius-md: 8px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -37,1109 +35,645 @@
             font-family: 'Inter', -apple-system, sans-serif;
             background: var(--bg-app);
             color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Layout */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-subtle);
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
-
-        .app-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            width: 100%;
-        }
-
-        /* Header */
-        header {
-            margin-bottom: 40px;
-            text-align: center;
-            position: relative;
-        }
-
-        .leaderboard-toggle {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border-subtle);
-            color: var(--text-secondary);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .leaderboard-toggle:hover {
-            background: rgba(255,255,255,0.1);
-            color: var(--text-primary);
-        }
-
-        /* Leaderboard Panel */
-        .leaderboard-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(9, 9, 11, 0.8);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .leaderboard-modal.visible {
-            display: flex;
-            opacity: 1;
-        }
-
-        .leaderboard-content {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            width: 90%;
-            max-width: 900px;
-            max-height: 85vh;
+            padding: 20px;
             overflow-y: auto;
-            padding: 32px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            transform: scale(0.95);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .leaderboard-modal.visible .leaderboard-content {
-            transform: scale(1);
-        }
-
-        .lb-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .sidebar-header {
             margin-bottom: 24px;
-        }
-
-        .lb-title {
-            font-size: 1.5rem;
-            font-weight: 500;
-        }
-
-        .close-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-tertiary);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .lb-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .lb-table th {
-            text-align: left;
-            padding: 12px;
-            color: var(--text-tertiary);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            padding-bottom: 20px;
             border-bottom: 1px solid var(--border-subtle);
         }
 
-        .lb-table td {
-            padding: 16px 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .lb-table tr:hover td {
-            background: rgba(255,255,255,0.02);
-            color: var(--text-primary);
-        }
-
-        .rank-cell {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--text-tertiary);
-            width: 40px;
-        }
-
-        .model-cell {
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .score-cell {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 500;
-        }
-        
-        .score-high { color: #34d399; }
-        .score-med { color: #fbbf24; }
-        .score-low { color: #f87171; }
-
-        h1 {
-            font-size: 1.5rem;
-            font-weight: 500;
-            letter-spacing: -0.03em;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        h1 span {
-            color: var(--text-tertiary);
-            font-weight: 300;
-        }
-
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 300;
-        }
-
-        /* Setup Grid */
-        .setup-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 24px;
-            position: relative;
-        }
-
-        .setup-grid::after {
-            content: "VS";
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--bg-app);
-            color: var(--text-tertiary);
-            font-size: 0.75rem;
+        .logo {
+            font-size: 1.25rem;
             font-weight: 600;
-            padding: 4px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--border-subtle);
-            z-index: 10;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+        .logo span { color: var(--text-tertiary); }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
-        .model-card {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            transition: all 0.2s ease;
+        .history-item {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            background: rgba(255,255,255,0.02);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
         }
 
-        .model-card:hover {
+        .history-item:hover {
+            background: rgba(255,255,255,0.05);
             border-color: var(--border-active);
         }
 
-        .label {
-            display: block;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-tertiary);
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-
-        select {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 1.1rem;
-            font-weight: 500;
-            cursor: pointer;
-            outline: none;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-active);
-            transition: border-color 0.2s;
-        }
-
-        select:focus {
+        .history-item.active {
+            background: var(--accent-dim);
             border-color: var(--accent);
         }
 
-        /* Prompt Area */
-        .prompt-area {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        textarea {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            line-height: 1.6;
-            resize: none;
-            min-height: 60px;
-            outline: none;
-        }
-
-        textarea::placeholder {
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
             color: var(--text-tertiary);
+            margin-bottom: 4px;
         }
 
-        /* Controls */
-        .controls-bar {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 40px;
-        }
-
-        .turns-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: var(--bg-panel);
-            padding: 8px 16px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-subtle);
-        }
-
-        .turns-wrapper span {
+        .history-prompt {
             font-size: 0.85rem;
             color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        input[type="number"] {
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            width: 40px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            text-align: center;
-            outline: none;
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
         }
+        .status-active { color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
+        .status-running { color: #60a5fa; background: rgba(96, 165, 250, 0.1); }
+        .status-completed { color: #34d399; background: rgba(52, 211, 153, 0.1); }
+        .status-analyzed { color: #a78bfa; background: rgba(167, 139, 250, 0.1); }
 
-        .btn-group {
+        /* Main Content */
+        .main-content {
             display: flex;
-            gap: 12px;
-            margin-left: auto;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
         }
 
-        button {
-            border: none;
-            outline: none;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 500;
-            padding: 10px 20px;
+        /* Config Bar */
+        .config-bar {
+            padding: 20px 32px;
+            border-bottom: 1px solid var(--border-subtle);
+            background: var(--bg-panel);
+            display: flex;
+            align-items: flex-start;
+            gap: 24px;
+            flex-shrink: 0;
+        }
+
+        .config-group {
+            flex: 1;
+        }
+
+        .config-label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .config-select {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 8px 12px;
             border-radius: var(--radius-md);
-            transition: all 0.2s;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        
+        .run-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 200px;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            cursor: pointer;
         }
 
         .btn-primary {
             background: var(--text-primary);
             color: var(--bg-app);
+            border: none;
+            padding: 10px 24px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Workspace: Chat + Analysis */
+        .workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
         }
 
-        .btn-primary:hover {
-            background: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-        }
-        
-        .btn-primary:disabled {
-            background: var(--text-tertiary);
-            color: var(--bg-panel);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid transparent;
-        }
-
-        .btn-ghost:hover:not(:disabled) {
-            color: var(--text-primary);
-            background: var(--bg-panel);
-            border-color: var(--border-subtle);
-        }
-        
-        .btn-ghost:disabled {
-            color: var(--text-tertiary);
-            cursor: not-allowed;
-        }
-
-        .btn-accent {
-            background: rgba(129, 140, 248, 0.1);
-            color: var(--accent);
-            border: 1px solid transparent;
-        }
-
-        .btn-accent:hover:not(:disabled) {
-            background: rgba(129, 140, 248, 0.15);
-            border-color: rgba(129, 140, 248, 0.3);
-        }
-        
-        .btn-accent:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Chat Stage */
-        .chat-stage {
-            position: relative;
-            min-height: 400px;
-        }
-
-        .empty-state {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: var(--text-tertiary);
-        }
-
-        .empty-state svg {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 16px;
-            opacity: 0.2;
-        }
-
-        .message-list {
+        .chat-panel {
+            flex: 3;
             display: flex;
             flex-direction: column;
-            gap: 32px;
-            padding-bottom: 100px;
+            border-right: 1px solid var(--border-subtle);
+            min-width: 0;
+        }
+
+        .analysis-panel {
+            flex: 2;
+            background: var(--bg-app);
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        /* Chat Area */
+        .chat-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+            scroll-behavior: smooth;
         }
 
         .message {
             display: grid;
-            grid-template-columns: 24px 1fr;
+            grid-template-columns: 28px 1fr;
             gap: 16px;
-            opacity: 0;
-            animation: fadeSlideIn 0.4s ease forwards;
+            margin-bottom: 32px;
+            animation: fadeIn 0.3s ease;
         }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes fadeSlideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .avatar-dot {
-            width: 24px;
-            height: 24px;
+        .avatar {
+            width: 28px;
+            height: 28px;
             border-radius: 6px;
-            margin-top: 4px;
             display: grid;
             place-items: center;
             font-size: 10px;
             font-weight: 700;
-            color: rgba(0,0,0,0.5);
+            color: rgba(0,0,0,0.4);
         }
-
-        .agent-a .avatar-dot { background: var(--agent-a); box-shadow: 0 0 15px rgba(96, 165, 250, 0.2); }
-        .agent-b .avatar-dot { background: var(--agent-b); box-shadow: 0 0 15px rgba(52, 211, 153, 0.2); }
-
-        .message.system-tool {
-            grid-template-columns: 1fr;
-            gap: 0;
-            margin: 0 40px;
-        }
-
-        .tool-output {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-subtle);
-            border-left: 3px solid var(--accent);
-            border-radius: 8px;
-            padding: 12px 16px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-top: 8px;
-        }
-
-        .tool-label {
-            display: block;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--accent);
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-
-        #scenarioDesc {
-            font-size: 0.85rem; 
-            color: var(--text-secondary); 
-            margin-top: 12px; 
-            display: none; 
-            line-height: 1.5;
-            white-space: pre-wrap;
-            font-family: 'Inter', sans-serif;
-            background: rgba(0,0,0,0.2);
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-subtle);
-        }
-
-        .message-body {
+        .agent-a .avatar { background: var(--agent-a); }
+        .agent-b .avatar { background: var(--agent-b); }
+        
+        .msg-meta {
             display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .message-meta {
-            display: flex;
-            align-items: center;
             gap: 12px;
+            margin-bottom: 6px;
             font-size: 0.8rem;
         }
+        .model-name { color: var(--text-secondary); font-weight: 500; }
+        .turn-num { color: var(--text-tertiary); font-family: 'JetBrains Mono'; }
 
-        .model-tag {
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .turn-tag {
-            color: var(--text-tertiary);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-        }
-
-        .content {
+        .msg-content {
+            font-size: 0.95rem;
+            line-height: 1.6;
             color: var(--text-primary);
-            font-size: 1rem;
-            line-height: 1.7;
             white-space: pre-wrap;
         }
 
-        .reasoning-block {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: var(--text-tertiary);
-            background: rgba(255,255,255,0.03);
-            border-left: 2px solid var(--border-active);
-            padding: 12px 16px;
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .reasoning-label {
-            display: block;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-tertiary);
-            margin-bottom: 6px;
-        }
-
-        .typing {
+        /* Analysis Tabs & Content */
+        .tabs {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-left: 40px;
-            color: var(--text-tertiary);
-            font-size: 0.9rem;
-        }
-
-        .dot-flashing {
-            position: relative;
-            width: 6px;
-            height: 6px;
-            border-radius: 3px;
-            background-color: var(--text-tertiary);
-            animation: dot-flashing 1s infinite linear alternate;
-            animation-delay: 0.5s;
-        }
-        .dot-flashing::before, .dot-flashing::after {
-            content: '';
-            display: inline-block;
-            position: absolute;
-            top: 0;
-            width: 6px;
-            height: 6px;
-            border-radius: 3px;
-            background-color: var(--text-tertiary);
-            animation: dot-flashing 1s infinite alternate;
-        }
-        .dot-flashing::before { left: -10px; animation-delay: 0s; }
-        .dot-flashing::after { left: 10px; animation-delay: 1s; }
-
-        @keyframes dot-flashing {
-            0% { background-color: var(--text-tertiary); }
-            50%, 100% { background-color: rgba(113, 113, 122, 0.2); }
-        }
-
-        /* Analysis Panel */
-        .analysis-panel {
-            margin-top: 60px;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 32px;
-            display: none;
-            animation: fadeSlideIn 0.5s ease;
-        }
-
-        .analysis-panel.visible { display: block; }
-
-        .analysis-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
             border-bottom: 1px solid var(--border-subtle);
-            padding-bottom: 20px;
+            background: var(--bg-panel);
+        }
+        .tab {
+            padding: 12px 24px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--accent);
         }
         
-        .analysis-title {
-            font-size: 1.1rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .analysis-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
         }
 
-        .analysis-badge {
-            background: var(--accent-dim);
-            color: var(--accent);
-            font-size: 0.75rem;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-
-        .metrics-grid {
+        .score-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 32px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
-        .metric-card {
+        .score-card {
             background: rgba(255,255,255,0.02);
+            padding: 16px;
             border-radius: var(--radius-md);
-            padding: 20px;
             text-align: center;
+            border: 1px solid var(--border-subtle);
         }
 
-        .metric-value {
-            font-size: 2rem;
+        .score-val {
+            font-size: 1.8rem;
             font-weight: 300;
             color: var(--text-primary);
-            margin-bottom: 4px;
             font-feature-settings: "tnum";
         }
-
-        .metric-label {
-            font-size: 0.8rem;
-            color: var(--text-tertiary);
-        }
-
-        .insights-section h3 {
-            font-size: 0.9rem;
+        .score-label {
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
         }
+        
+        .score-good { color: #34d399; }
+        .score-avg { color: #fbbf24; }
+        .score-bad { color: #f87171; }
 
-        .observation-item {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        .observation-item::before {
-            content: "•";
-            color: var(--accent);
-        }
-
-        .status-toast {
-            position: fixed;
-            bottom: 32px;
-            right: 32px;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-subtle);
-            padding: 12px 20px;
-            border-radius: 50px;
+        .critique-box {
+            background: rgba(255,255,255,0.02);
+            padding: 20px;
+            border-radius: var(--radius-md);
             font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 100;
-        }
-
-        .status-toast.visible {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--text-tertiary);
-        }
-
-        .status-dot.active {
-            background: #10b981;
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
-        }
-
-        /* Markdown Styles */
-        .code-block {
-            background: #1e1e20;
-            border-radius: 8px;
-            margin: 12px 0;
+            color: var(--text-secondary);
+            line-height: 1.6;
             border: 1px solid var(--border-subtle);
+        }
+
+        /* Markdown */
+        .code-block {
+            background: #111;
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
             overflow: hidden;
         }
         .code-header {
-            background: rgba(255,255,255,0.05);
-            padding: 6px 12px;
-            font-size: 0.75rem;
-            color: var(--text-tertiary);
-            border-bottom: 1px solid var(--border-subtle);
-            font-family: 'JetBrains Mono', monospace;
+            padding: 4px 12px;
+            background: #222;
+            color: #777;
+            font-size: 0.7rem;
             text-transform: uppercase;
         }
         .code-block code {
             display: block;
             padding: 12px;
             overflow-x: auto;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            color: #e4e4e7;
-            white-space: pre;
+            color: #ccc;
         }
+        
         .inline-code {
             background: rgba(255,255,255,0.1);
-            padding: 2px 5px;
+            padding: 2px 4px;
             border-radius: 4px;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'JetBrains Mono';
             font-size: 0.85em;
             color: var(--accent);
         }
-        strong {
-            font-weight: 600;
-            color: #fff;
+        
+        /* Tool Output */
+        .tool-output {
+            margin-top: 8px;
+            background: #1c1917;
+            border-left: 3px solid #f97316;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono';
+            font-size: 0.85rem;
+            color: #a8a29e;
+        }
+
+        /* Leaderboard Modal */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            display: none; place-items: center; z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.open { display: grid; }
+        
+        .modal-content {
+            background: var(--bg-panel);
+            width: 90%; max-width: 900px;
+            max-height: 85vh; overflow-y: auto;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            padding: 32px;
         }
     </style>
 </head>
 <body>
-
-    <div class="app-container">
-        <header>
-            <button class="leaderboard-toggle" onclick="toggleLeaderboard()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 20V10M12 20V4M6 20v-6"/>
-                </svg>
-                Live Leaderboard
-            </button>
-            <h1>Convo<span>Bench</span></h1>
-            <p class="subtitle">Experimental Model Interaction Environment</p>
-        </header>
-
-        <div class="setup-grid">
-            <div class="model-card">
-                <span class="label">Agent A</span>
-                <select id="modelA">
-                    <option value="llama-70b">Llama 3.1 70B</option>
-                    <option value="llama-405b">Llama 3.1 405B</option>
-                    <option value="kimi-k2">Kimi K2 Thinking</option>
-                    <option value="deepseek-v3">DeepSeek V3.2</option>
-                    <option value="mistral-large">Mistral Large 3</option>
-                    <option value="gpt-oss">GPT OSS 120B</option>
-                    <option value="falcon3">Falcon 3 7B</option>
-                    <option value="nemotron-vl">Nemotron Nano 12B</option>
-                </select>
-            </div>
-            
-            <div class="model-card">
-                <span class="label">Agent B</span>
-                <select id="modelB">
-                    <option value="llama-70b">Llama 3.1 70B</option>
-                    <option value="llama-405b">Llama 3.1 405B</option>
-                    <option value="kimi-k2">Kimi K2 Thinking</option>
-                    <option value="deepseek-v3">DeepSeek V3.2</option>
-                    <option value="mistral-large">Mistral Large 3</option>
-                    <option value="gpt-oss">GPT OSS 120B</option>
-                    <option value="falcon3">Falcon 3 7B</option>
-                    <option value="nemotron-vl">Nemotron Nano 12B</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="model-card" style="margin-bottom: 24px;">
-            <span class="label">Scenario</span>
-            <select id="scenarioSelect" onchange="handleScenarioChange()">
-                <option value="">Free Chat (Custom Prompt)</option>
-            </select>
-            <p id="scenarioDesc" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 12px; display: none; line-height: 1.5;"></p>
-        </div>
-
-        <div class="prompt-area" id="promptArea">
-            <span class="label">Seed Prompt</span>
-            <textarea id="seedPrompt" placeholder="What starts the conversation?">Let's have a philosophical discussion about the nature of consciousness and whether machines can truly think.</textarea>
-        </div>
-
-        <div class="controls-bar">
-            <div class="turns-wrapper">
-                <span>Max Turns</span>
-                <input type="number" id="maxTurns" value="10" min="2" max="50">
-            </div>
-
-            <div class="btn-group">
-                <button id="startBtn" class="btn-primary" onclick="startConversation()">Start Session</button>
-                <button id="stopBtn" class="btn-ghost" onclick="stopConversation()" disabled>Stop</button>
-                <button id="analyzeBtn" class="btn-accent" onclick="runAnalysis()" disabled>Analyze with Kimi</button>
-                <button id="saveBtn" class="btn-ghost" onclick="saveConversation()" disabled>Save JSON</button>
-            </div>
-        </div>
-
-        <div class="chat-stage" id="chatContainer">
-            <div class="empty-state">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                </svg>
-                <p>Ready to initialize models</p>
-            </div>
-            
-            <div class="message-list" id="messageList">
-                <!-- Messages injected here -->
-            </div>
-        </div>
-
-        <div class="analysis-panel" id="analysisPanel">
-            <div class="analysis-header">
-                <div class="analysis-title">
-                    Analysis Report
-                    <span class="analysis-badge">Kimi K2</span>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">Convo<span>Bench</span></div>
+                <div style="margin-top: 12px; display: flex; gap: 8px;">
+                    <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem; width: 100%;" onclick="newSession()">+ New Session</button>
+                    <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem; background: #27272a;" onclick="toggleLeaderboard()">🏆</button>
                 </div>
             </div>
-            
-            <div class="metrics-grid" id="scoresGrid">
-                <!-- Scores injected here -->
-            </div>
-            
-            <div class="insights-section">
-                <h3>Key Observations</h3>
-                <div id="observationsList"></div>
-            </div>
-
-            <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border-subtle);">
-                <h3 style="color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">Summary</h3>
-                <p id="summaryText" style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;"></p>
+            <div class="history-list" id="historyList">
+                <!-- History Items -->
             </div>
         </div>
 
-        <div class="leaderboard-modal" id="leaderboardModal">
-            <div class="leaderboard-content">
-                <div class="lb-header">
-                    <div class="lb-title">
-                        Live Model Leaderboard
-                        <span style="font-size: 0.8rem; color: var(--text-tertiary); margin-left: 12px; font-weight: 400;">Based on Kimi K2 Evaluations</span>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Config -->
+            <div class="config-bar">
+                <div class="config-group" style="flex: 2;">
+                    <span class="config-label">Scenario / Prompt</span>
+                    <select class="config-select" id="scenarioSelect" onchange="handleScenarioChange()">
+                        <option value="">Free Chat</option>
+                    </select>
+                </div>
+                <div class="config-group">
+                    <span class="config-label">Agent A</span>
+                    <select class="config-select" id="modelA">
+                        <option value="llama-70b">Llama 3.1 70B</option>
+                        <option value="llama-405b">Llama 3.1 405B</option>
+                        <option value="kimi-k2">Kimi K2</option>
+                        <option value="deepseek-v3">DeepSeek V3</option>
+                    </select>
+                </div>
+                <div class="config-group">
+                    <span class="config-label">Agent B</span>
+                    <select class="config-select" id="modelB">
+                        <option value="llama-70b">Llama 3.1 70B</option>
+                        <option value="llama-405b">Llama 3.1 405B</option>
+                        <option value="kimi-k2">Kimi K2</option>
+                        <option value="deepseek-v3">DeepSeek V3</option>
+                    </select>
+                </div>
+                <div class="run-controls">
+                    <label class="toggle-row">
+                        <input type="checkbox" id="bgMode"> Run in background
+                    </label>
+                    <button class="btn-primary" id="startBtn" onclick="runSession()">Run Conversation</button>
+                </div>
+            </div>
+
+            <div id="seedPromptContainer" style="padding: 0 32px; margin-top: 20px;">
+                 <textarea id="seedPrompt" style="width: 100%; background: #111; border: 1px solid var(--border-subtle); color: #ddd; padding: 12px; border-radius: 8px; resize: none;" rows="2" placeholder="Enter seed prompt..."></textarea>
+            </div>
+
+            <!-- Workspace -->
+            <div class="workspace">
+                <!-- Chat Panel -->
+                <div class="chat-panel">
+                    <div class="chat-scroll" id="chatList">
+                        <div style="text-align: center; color: var(--text-tertiary); margin-top: 100px;">
+                            Select a scenario and click Run to start.
+                        </div>
                     </div>
-                    <button class="close-btn" onclick="toggleLeaderboard()">&times;</button>
                 </div>
-                <table class="lb-table">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Model</th>
-                            <th>Overall</th>
-                            <th>Coherence</th>
-                            <th>Reasoning</th>
-                            <th>Engage</th>
-                            <th>Instruct</th>
-                            <th>Matches</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leaderboardBody">
-                        <!-- Rows injected here -->
-                    </tbody>
-                </table>
+
+                <!-- Analysis Panel -->
+                <div class="analysis-panel">
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('overall')" id="tab-overall">Overall</div>
+                        <div class="tab" onclick="switchTab('agent_a')" id="tab-a">Agent A</div>
+                        <div class="tab" onclick="switchTab('agent_b')" id="tab-b">Agent B</div>
+                    </div>
+                    
+                    <div class="analysis-content" id="analysisContent">
+                        <div style="text-align: center; color: var(--text-tertiary); margin-top: 100px;">
+                            Analysis will appear here automatically<br>after conversation completes.
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="status-toast" id="statusToast">
-        <div class="status-dot" id="statusDot"></div>
-        <span id="statusText">Ready</span>
+    <!-- Leaderboard Modal -->
+    <div class="modal-overlay" id="lbModal">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <h2>Leaderboard</h2>
+                <button onclick="toggleLeaderboard()" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            <table style="width:100%; text-align:left; border-collapse:collapse; color:#ccc;">
+                <thead>
+                    <tr style="border-bottom:1px solid #333; color:#777; text-transform:uppercase; font-size:0.75rem;">
+                        <th style="padding:10px;">Model</th>
+                        <th>Matches</th>
+                        <th>Overall</th>
+                        <th>Reasoning</th>
+                        <th>Coherence</th>
+                    </tr>
+                </thead>
+                <tbody id="lbBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
         const API_BASE = '';
-        let conversationId = null;
-        let isRunning = false;
-        let currentTurn = 0;
-        let maxTurns = 10;
-        let shouldStop = false;
+        let currentConvId = null;
+        let currentAnalysis = null;
+        let activeTab = 'overall';
         let scenarios = [];
+        let pollInterval = null;
 
-        // Load scenarios on init
+        // Init
         loadScenarios();
+        loadHistory();
+        loadModels();
+
+        async function loadModels() {
+            try {
+                const res = await fetch(`${API_BASE}/api/models`);
+                const models = await res.json();
+                const opts = Object.entries(models).map(([k,v]) => `<option value="${k}">${v.name}</option>`).join('');
+                document.getElementById('modelA').innerHTML = opts;
+                document.getElementById('modelB').innerHTML = opts;
+                // Defaults
+                document.getElementById('modelA').value = 'llama-70b';
+                document.getElementById('modelB').value = 'kimi-k2';
+            } catch(e) { console.error("Error loading models", e); }
+        }
 
         async function loadScenarios() {
             try {
                 const res = await fetch(`${API_BASE}/api/scenarios`);
                 scenarios = await res.json();
-                const select = document.getElementById('scenarioSelect');
-                scenarios.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s.id;
-                    opt.textContent = s.name;
-                    select.appendChild(opt);
-                });
-            } catch (err) {
-                console.error("Failed to load scenarios", err);
-            }
+                const sel = document.getElementById('scenarioSelect');
+                sel.innerHTML = '<option value="">Free Chat</option>' + scenarios.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            } catch(e) { console.error("Error loading scenarios", e); }
         }
 
         function handleScenarioChange() {
-            const select = document.getElementById('scenarioSelect');
-            const desc = document.getElementById('scenarioDesc');
-            const promptArea = document.getElementById('promptArea');
-            const seedPrompt = document.getElementById('seedPrompt');
-            
-            const scenario = scenarios.find(s => s.id === select.value);
-            
-            if (scenario) {
-                desc.innerHTML = formatContent(scenario.description);
-                desc.style.display = 'block';
-                promptArea.style.opacity = '0.5';
-                promptArea.style.pointerEvents = 'none';
-                seedPrompt.value = `[Scenario: ${scenario.name}]\n${scenario.description}`;
-            } else {
-                desc.style.display = 'none';
-                promptArea.style.opacity = '1';
-                promptArea.style.pointerEvents = 'auto';
-                seedPrompt.value = "Let's have a philosophical discussion about the nature of consciousness and whether machines can truly think.";
+            const id = document.getElementById('scenarioSelect').value;
+            const promptBox = document.getElementById('seedPrompt');
+            if (!id) {
+                promptBox.value = "Let's have a philosophical discussion about the nature of consciousness.";
+                promptBox.disabled = false;
+                promptBox.style.opacity = 1;
+                return;
             }
+            const s = scenarios.find(x => x.id === id);
+            promptBox.value = `[Scenario: ${s.name}]\n${s.description}`;
+            promptBox.disabled = true;
+            promptBox.style.opacity = 0.5;
         }
 
-        function setStatus(text, active = false) {
-            const toast = document.getElementById('statusToast');
-            const dot = document.getElementById('statusDot');
-            const txt = document.getElementById('statusText');
-            
-            txt.textContent = text;
-            dot.classList.toggle('active', active);
-            toast.classList.add('visible');
-            
-            if (!active && text === 'Ready') {
-                setTimeout(() => toast.classList.remove('visible'), 3000);
-            }
+        async function loadHistory() {
+            try {
+                const res = await fetch(`${API_BASE}/api/conversations?limit=20`);
+                const list = await res.json();
+                const container = document.getElementById('historyList');
+                container.innerHTML = list.map(c => `
+                    <div class="history-item ${c.id == currentConvId ? 'active' : ''}" onclick="loadConversation('${c.id}')">
+                        <div class="history-meta">
+                            <span>#${c.id}</span>
+                            <span>${new Date(c.start_time).toLocaleTimeString()}</span>
+                        </div>
+                        <div class="history-prompt">${c.seed_prompt}</div>
+                        <div style="margin-top:6px; display:flex; justify-content:space-between; align-items:center;">
+                            <span class="status-badge status-${c.status}">${c.status}</span>
+                            <span style="font-size:0.7rem; color:#555;">${c.total_turns} turns</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) { console.error("Error loading history", e); }
         }
 
-        function formatContent(text) {
-            if (!text) return '';
-            
-            // 1. Basic HTML Escape
-            let formatted = text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;");
-
-            // 2. Code Blocks
-            formatted = formatted.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
-                return `<div class="code-block">
-                            <div class="code-header">${lang || 'CODE'}</div>
-                            <code>${code}</code>
-                        </div>`;
-            });
-
-            // 3. Inline Code
-            formatted = formatted.replace(/`([^`]+)`/g, '<span class="inline-code">$1</span>');
-
-            // 4. Bold
-            formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-
-            return formatted;
+        async function newSession() {
+            currentConvId = null;
+            document.getElementById('chatList').innerHTML = '<div style="text-align:center; margin-top:100px; color:#555;">Ready to start</div>';
+            document.getElementById('analysisContent').innerHTML = '<div style="text-align:center; color: var(--text-tertiary); margin-top: 100px;">Analysis will appear here automatically<br>after conversation completes.</div>';
+            document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+            // Reset prompt
+            handleScenarioChange();
         }
 
-        function addMessage(agent, content, modelKey, turn, reasoning = null, toolOutput = null) {
-            const list = document.getElementById('messageList');
-            const emptyState = document.querySelector('.empty-state');
-            if (emptyState) emptyState.style.display = 'none';
+        async function runSession() {
+            const scenarioId = document.getElementById('scenarioSelect').value;
+            const bgMode = document.getElementById('bgMode').checked;
             
-            const typing = document.querySelector('.typing');
-            if (typing) typing.remove();
-
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message agent-${agent}`;
-            
-            const modelNames = {
-                'llama-70b': 'Llama 3.1 70B',
-                'llama-405b': 'Llama 3.1 405B',
-                'kimi-k2': 'Kimi K2',
-                'deepseek-v3': 'DeepSeek V3.2',
-                'mistral-large': 'Mistral Large 3',
-                'gpt-oss': 'GPT OSS 120B',
-                'falcon3': 'Falcon 3 7B',
-                'nemotron-vl': 'Nemotron Nano 12B'
+            const payload = {
+                model_a: document.getElementById('modelA').value,
+                model_b: document.getElementById('modelB').value,
+                seed_prompt: document.getElementById('seedPrompt').value,
+                max_turns: 10,
+                scenario_id: scenarioId || null,
+                mode: bgMode ? 'background' : 'live'
             };
 
-            let reasoningHtml = '';
-            if (reasoning) {
-                reasoningHtml = `
-                    <div class="reasoning-block">
-                        <span class="reasoning-label">Internal Reasoning</span>
-                        ${formatContent(reasoning)}
-                    </div>
-                `;
-            }
-
-            let toolHtml = '';
-            if (toolOutput) {
-                toolHtml = `
-                    <div class="tool-output">
-                        <span class="tool-label">Tool Execution Result</span>
-                        ${formatContent(toolOutput)}
-                    </div>
-                `;
-            }
-
-            msgDiv.innerHTML = `
-                <div class="avatar-dot">${agent.toUpperCase()}</div>
-                <div class="message-body">
-                    <div class="message-meta">
-                        <span class="model-tag">${modelNames[modelKey] || modelKey}</span>
-                        <span class="turn-tag">TURN ${turn}</span>
-                    </div>
-                    ${reasoningHtml}
-                    <div class="content">${formatContent(content)}</div>
-                    ${toolHtml}
-                </div>
-            `;
-            
-            list.appendChild(msgDiv);
-            
-            // Auto scroll
-            const bottom = msgDiv.offsetTop + msgDiv.offsetHeight;
-            window.scrollTo({ top: bottom, behavior: 'smooth' });
-        }
-
-        function showTyping(agent, modelKey) {
-            const list = document.getElementById('messageList');
-            const div = document.createElement('div');
-            div.className = 'typing';
-            div.innerHTML = `
-                <span>${modelKey} is thinking</span>
-                <div class="dot-flashing"></div>
-            `;
-            list.appendChild(div);
-        }
-
-        async function startConversation() {
-            const modelA = document.getElementById('modelA').value;
-            const modelB = document.getElementById('modelB').value;
-            const seedPrompt = document.getElementById('seedPrompt').value;
-            const scenarioId = document.getElementById('scenarioSelect').value;
-            maxTurns = parseInt(document.getElementById('maxTurns').value);
-
-            if (!seedPrompt.trim()) return;
-
-            // Reset UI
-            document.getElementById('messageList').innerHTML = '';
-            document.querySelector('.empty-state').style.display = 'block';
-            document.getElementById('analysisPanel').classList.remove('visible');
-            currentTurn = 0;
-            shouldStop = false;
-
-            // Update Controls
-            document.getElementById('startBtn').disabled = true;
-            document.getElementById('stopBtn').disabled = false;
-            document.getElementById('analyzeBtn').disabled = true;
-            document.getElementById('saveBtn').disabled = true;
-
-            setStatus('Initializing session...', true);
+            // Disable button
+            const btn = document.getElementById('startBtn');
+            btn.disabled = true;
+            btn.innerText = "Running...";
 
             try {
                 const res = await fetch(`${API_BASE}/api/conversation/start`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        model_a: modelA, 
-                        model_b: modelB, 
-                        seed_prompt: seedPrompt, 
-                        max_turns: maxTurns,
-                        scenario_id: scenarioId || null 
-                    })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
                 });
                 const data = await res.json();
-                conversationId = data.conversation_id;
-                
-                await runLoop(modelA, modelB);
+                currentConvId = data.conversation_id;
+                loadHistory(); // Refresh list
 
-            } catch (err) {
-                console.error(err);
-                setStatus('Error starting session', false);
+                if (bgMode) {
+                    // Background mode: Start polling
+                    startPolling(currentConvId);
+                    loadConversation(currentConvId); // Show initial state
+                } else {
+                    // Live mode
+                    document.getElementById('chatList').innerHTML = '';
+                    await runLiveLoop(currentConvId, payload.max_turns);
+                }
+            } catch(e) {
+                console.error("Error starting session", e);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Run Conversation";
             }
-
-            // Reset Controls
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('stopBtn').disabled = true;
-            document.getElementById('analyzeBtn').disabled = false;
-            document.getElementById('saveBtn').disabled = false;
         }
 
-        async function runLoop(modelA, modelB) {
+        async function runLiveLoop(convId, maxTurns) {
+            let turn = 0;
             let currentAgent = 'a';
             
-            while (currentTurn < maxTurns && !shouldStop) {
-                currentTurn++;
-                const modelKey = currentAgent === 'a' ? modelA : modelB;
-                
-                setStatus(`Agent ${currentAgent.toUpperCase()} generating...`, true);
-                showTyping(currentAgent, modelKey);
+            while (turn < maxTurns) {
+                turn++;
+                // Render typing indicator
+                const chatList = document.getElementById('chatList');
+                const typingId = `typing-${turn}`;
+                chatList.innerHTML += `<div id="${typingId}" class="message" style="opacity:0.5; font-size:0.8rem;">Agent ${currentAgent.toUpperCase()} is thinking...</div>`;
+                chatList.scrollTop = chatList.scrollHeight;
 
                 try {
-                    const res = await fetch(`${API_BASE}/api/conversation/${conversationId}/turn`, {
+                    const res = await fetch(`${API_BASE}/api/conversation/${convId}/turn`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ agent: currentAgent })
                     });
 
+                    // Stream handling
                     const reader = res.body.getReader();
                     const decoder = new TextDecoder();
-                    let content = '';
-                    let reasoning = '';
+                    let fullContent = '';
                     let toolOutput = '';
+
+                    // Remove typing
+                    document.getElementById(typingId).remove();
+                    
+                    // Create message element
+                    const msgId = `msg-${turn}`;
+                    const div = document.createElement('div');
+                    div.className = 'message agent-' + currentAgent;
+                    div.id = msgId;
+                    div.innerHTML = `
+                        <div class="avatar">${currentAgent.toUpperCase()}</div>
+                        <div>
+                            <div class="msg-meta">
+                                <span class="model-name">Agent ${currentAgent.toUpperCase()}</span>
+                                <span class="turn-num">Turn ${turn}</span>
+                            </div>
+                            <div class="msg-content"></div>
+                        </div>
+                    `;
+                    chatList.appendChild(div);
+                    const contentDiv = div.querySelector('.msg-content');
 
                     while (true) {
                         const { done, value } = await reader.read();
@@ -1150,138 +684,222 @@
                         for (const line of lines) {
                             if (line.startsWith('data: ')) {
                                 try {
-                                    const data = JSON.parse(line.slice(6));
-                                    if (data.type === 'content') content += data.content;
-                                    else if (data.type === 'reasoning') reasoning += data.content;
-                                    else if (data.type === 'tool_result') toolOutput += data.content;
-                                } catch(e) {}
+                                    const json = JSON.parse(line.substring(6));
+                                    if (json.type === 'content') {
+                                        fullContent += json.content;
+                                        contentDiv.innerHTML = formatContent(fullContent);
+                                        chatList.scrollTop = chatList.scrollHeight;
+                                    } else if (json.type === 'tool_result') {
+                                        toolOutput = json.content;
+                                        const toolDiv = document.createElement('div');
+                                        toolDiv.className = 'tool-output';
+                                        toolDiv.innerHTML = formatContent(toolOutput);
+                                        div.querySelector('div:last-child').appendChild(toolDiv);
+                                    }
+                                } catch (e) {}
                             }
                         }
                     }
-                    
-                    addMessage(currentAgent, content, modelKey, currentTurn, reasoning, toolOutput);
-                    
-                } catch (err) {
-                    setStatus('Error generating turn', false);
+                } catch (e) {
+                    console.error("Turn error", e);
                     break;
                 }
-
+                
                 currentAgent = currentAgent === 'a' ? 'b' : 'a';
-                await new Promise(r => setTimeout(r, 500));
             }
             
-            setStatus(shouldStop ? 'Session stopped' : 'Session complete', false);
-        }
-
-        function stopConversation() {
-            shouldStop = true;
-            setStatus('Stopping...', false);
-        }
-
-        async function runAnalysis() {
-            if (!conversationId) return;
+            // Done: Trigger Analysis
+            const chatList = document.getElementById('chatList');
+            chatList.innerHTML += `<div style="text-align:center; color:#666; margin:20px; font-size:0.9rem;">Conversation complete. Analyzing results...</div>`;
+            chatList.scrollTop = chatList.scrollHeight;
             
-            setStatus('Running analysis...', true);
-            document.getElementById('analyzeBtn').disabled = true;
-
-            try {
-                const res = await fetch(`${API_BASE}/api/conversation/${conversationId}/analyze`, { method: 'POST' });
-                const analysis = await res.json();
-                displayAnalysis(analysis);
-            } catch (err) {
-                setStatus('Analysis failed', false);
-            }
-
-            document.getElementById('analyzeBtn').disabled = false;
-            setStatus('Analysis complete', false);
+            await fetch(`${API_BASE}/api/conversation/${convId}/analyze`, { method: 'POST' });
+            loadConversation(convId); // Reload to show analysis
+            loadHistory();
         }
 
-        function displayAnalysis(data) {
-            const panel = document.getElementById('analysisPanel');
-            panel.classList.add('visible');
-
-            // Metrics
-            const metrics = [
-                { l: 'Quality', v: data.overall_quality },
-                { l: 'Coherence', v: data.coherence_score },
-                { l: 'Engagement', v: data.engagement_score },
-                { l: 'Identity Leak', v: data.identity_leak_score }
-            ];
-
-            const grid = document.getElementById('scoresGrid');
-            grid.innerHTML = metrics.map(m => `
-                <div class="metric-card">
-                    <div class="metric-value" style="color: ${m.l === 'Identity Leak' ? (m.v < 0.3 ? '#34d399' : '#f87171') : (m.v > 0.6 ? '#34d399' : '#fbbf24')}">
-                        ${Math.round((m.v || 0) * 100)}%
-                    </div>
-                    <div class="metric-label">${m.l}</div>
-                </div>
-            `).join('');
-
-            // Observations
-            const obsList = document.getElementById('observationsList');
-            obsList.innerHTML = (data.key_observations || []).map(o => `
-                <div class="observation-item">${o}</div>
-            `).join('');
-
-            // Summary
-            const summary = document.getElementById('summaryText');
-            summary.innerHTML = data.summary || 'No summary provided.';
-            
-            if (data.breakdown_detected) {
-                summary.innerHTML += `<br><br><span style="color: #f87171; font-weight: 500;">⚠️ Breakdown detected at turn ${data.breakdown_turn}</span>`;
-            }
-
-            // Scroll to analysis
-            panel.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        async function saveConversation() {
-            if (!conversationId) return;
-            setStatus('Saving...', true);
-            try {
-                const res = await fetch(`${API_BASE}/api/conversation/${conversationId}/save`, { method: 'POST' });
+        function startPolling(convId) {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(async () => {
+                const res = await fetch(`${API_BASE}/api/conversation/${convId}`);
                 const data = await res.json();
-                if (data.saved) setStatus(`Saved to ${data.filename}`);
-            } catch (err) {
-                setStatus('Save failed', false);
-            }
+                if (data.status === 'completed' || data.status === 'analyzed') {
+                    clearInterval(pollInterval);
+                    loadConversation(convId);
+                    loadHistory();
+                } else {
+                    // Update chat list if viewing
+                    if (currentConvId === convId) renderChat(data.messages);
+                }
+            }, 3000);
         }
 
-        function toggleLeaderboard() {
-            const modal = document.getElementById('leaderboardModal');
-            const isVisible = modal.classList.contains('visible');
+        async function loadConversation(id) {
+            currentConvId = id;
+            if (pollInterval) clearInterval(pollInterval);
             
-            if (!isVisible) {
-                modal.classList.add('visible');
-                loadLeaderboard();
+            const res = await fetch(`${API_BASE}/api/conversation/${id}`);
+            const data = await res.json();
+            
+            renderChat(data.messages);
+            
+            if (data.status === 'running') {
+                startPolling(id);
+            }
+            
+            if (data.analysis) {
+                currentAnalysis = data.analysis;
+                renderAnalysis();
             } else {
-                modal.classList.remove('visible');
+                currentAnalysis = null;
+                document.getElementById('analysisContent').innerHTML = '<div style="text-align:center; margin-top:50px; color:#555;">Waiting for analysis...</div>';
+            }
+            
+            // Update history highlight
+            loadHistory();
+        }
+
+        function renderChat(messages) {
+            const list = document.getElementById('chatList');
+            list.innerHTML = messages.map(m => {
+                if (m.role === 'system') {
+                    return `<div class="tool-output" style="margin: 10px 40px;">${formatContent(m.content)}</div>`;
+                }
+                return `
+                <div class="message agent-${m.agent}">
+                    <div class="avatar">${m.agent.toUpperCase()}</div>
+                    <div>
+                        <div class="msg-meta">
+                            <span class="model-name">${m.model}</span>
+                            <span class="turn-num">Turn ${m.turn}</span>
+                        </div>
+                        <div class="msg-content">${formatContent(m.content)}</div>
+                        ${m.reasoning ? `<div style="margin-top:8px; padding:8px; background:rgba(255,255,255,0.05); border-left:2px solid #555; font-size:0.8rem; color:#888; font-family:'JetBrains Mono';">${formatContent(m.reasoning)}</div>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+            list.scrollTop = list.scrollHeight;
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab === 'overall' ? 'tab-overall' : (tab === 'agent_a' ? 'tab-a' : 'tab-b')).classList.add('active');
+            renderAnalysis();
+        }
+
+        function renderAnalysis() {
+            if (!currentAnalysis) return;
+            const container = document.getElementById('analysisContent');
+            
+            if (activeTab === 'overall') {
+                // Kimi K2 Overall Analysis
+                const obs = (currentAnalysis.key_observations || []).map(o => `<li>${o}</li>`).join('');
+                const overallScore = Math.round(checkScore(currentAnalysis.overall_quality));
+                const coherenceScore = Math.round(checkScore(currentAnalysis.coherence_score));
+                
+                container.innerHTML = `
+                    <div class="score-grid">
+                        <div class="score-card">
+                            <div class="score-val ${getColor(overallScore)}">${overallScore}</div>
+                            <div class="score-label">Quality</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-val ${getColor(coherenceScore)}">${coherenceScore}</div>
+                            <div class="score-label">Coherence</div>
+                        </div>
+                    </div>
+                    <div class="critique-box">
+                        <h4 style="color:#fff; margin-bottom:10px;">Summary</h4>
+                        <p>${currentAnalysis.summary}</p>
+                        <h4 style="color:#fff; margin:20px 0 10px;">Observations</h4>
+                        <ul style="padding-left:20px;">${obs}</ul>
+                    </div>
+                `;
+            } else {
+                // Agent Benchmarks
+                const agentKey = activeTab; // agent_a or agent_b
+                const benchmarks = currentAnalysis.benchmarks ? currentAnalysis.benchmarks[agentKey] : null;
+                
+                if (!benchmarks) {
+                    container.innerHTML = "<div style='text-align:center; color:#555;'>No benchmark data available.</div>";
+                    return;
+                }
+
+                const overall = Math.round(checkScore(benchmarks.score_overall));
+                const reasoning = Math.round(checkScore(benchmarks.score_reasoning));
+                const instruct = Math.round(checkScore(benchmarks.score_instruction_following));
+                const tools = benchmarks.score_tool_usage ? Math.round(checkScore(benchmarks.score_tool_usage)) : '-';
+
+                container.innerHTML = `
+                    <div class="score-grid">
+                        <div class="score-card">
+                            <div class="score-val ${getColor(overall)}">${overall}</div>
+                            <div class="score-label">Overall Score</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-val ${getColor(reasoning)}">${reasoning}</div>
+                            <div class="score-label">Reasoning</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-val ${getColor(instruct)}">${instruct}</div>
+                            <div class="score-label">Instruct Follow</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-val ${getColor(tools === '-' ? 0 : tools)}">${tools}</div>
+                            <div class="score-label">Tool Usage</div>
+                        </div>
+                    </div>
+                    <div class="critique-box">
+                        <h4 style="color:#fff; margin-bottom:10px;">Judge's Critique</h4>
+                        <p>${benchmarks.metrics_json?.critique || "No critique provided."}</p>
+                    </div>
+                `;
             }
         }
 
-        async function loadLeaderboard() {
-            try {
+        // Helper to normalize 0-1 scores to 0-100 if needed (legacy data support)
+        function checkScore(val) {
+            if (val <= 1.0) return val * 100;
+            return val;
+        }
+
+        function getColor(score) {
+            if (score >= 80) return 'score-good';
+            if (score >= 50) return 'score-avg';
+            return 'score-bad';
+        }
+
+        function formatContent(text) {
+            if (!text) return '';
+            let formatted = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            formatted = formatted.replace(/```(\w*)\n([\s\S]*?)```/g, '<div class="code-block"><div class="code-header">$1</div><code>$2</code></div>');
+            formatted = formatted.replace(/`([^`]+)`/g, '<span class="inline-code">$1</span>');
+            formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            return formatted;
+        }
+
+        async function toggleLeaderboard() {
+            const modal = document.getElementById('lbModal');
+            if (modal.classList.contains('open')) {
+                modal.classList.remove('open');
+            } else {
+                modal.classList.add('open');
                 const res = await fetch(`${API_BASE}/api/leaderboard`);
                 const data = await res.json();
-                
-                const tbody = document.getElementById('leaderboardBody');
-                tbody.innerHTML = data.map((row, i) => `
-                    <tr>
-                        <td class="rank-cell">#${i + 1}</td>
-                        <td class="model-cell">${row.model_name}</td>
-                        <td class="score-cell ${getScoreClass(row.avg_overall)}">${formatScore(row.avg_overall)}</td>
-                        <td class="score-cell">${formatScore(row.avg_coherence)}</td>
-                        <td class="score-cell">${formatScore(row.avg_reasoning)}</td>
-                        <td class="score-cell">${formatScore(row.avg_engagement)}</td>
-                        <td class="score-cell">${formatScore(row.avg_instruction_following)}</td>
-                        <td class="score-cell">${row.avg_tool_usage ? formatScore(row.avg_tool_usage) : '-'}</td>
-                        <td class="score-cell" style="color: var(--text-tertiary)">${row.conversations_count}</td>
+                document.getElementById('lbBody').innerHTML = data.map(r => {
+                    const overall = Math.round(checkScore(r.avg_overall));
+                    const reasoning = Math.round(checkScore(r.avg_reasoning));
+                    const coherence = Math.round(checkScore(r.avg_coherence));
+                    return `
+                    <tr style="border-bottom:1px solid #222;">
+                        <td style="padding:12px; font-weight:500; color:#fff;">${r.model_name}</td>
+                        <td>${r.conversations_count}</td>
+                        <td class="${getColor(overall)}">${overall}</td>
+                        <td class="${getColor(reasoning)}">${reasoning}</td>
+                        <td class="${getColor(coherence)}">${coherence}</td>
                     </tr>
-                `).join('');
-                
-            } catch (err) {
-                console.error("Failed to load leaderboard", err);
+                `}).join('');
             }
         }
     </script>

@@ -74,29 +74,47 @@ TRANSCRIPT:
 {transcript}
 ---
 
-EVALUATION CRITERIA:
-1. **Instruction Following**: Did the model stay on topic and follow the implicit/explicit instructions? {("Did it pursue its goal: " + goal_context) if goal_context else ""}
-2. **Coherence**: Were the responses logical, consistent, and contextually appropriate?
-3. **Reasoning**: Did the model demonstrate sound logic and depth of thought?
-4. **Engagement**: Was the model's contribution interesting, promoting further dialogue?
-5. **Overall Quality**: An aggregate score of the model's performance.
+EVALUATION CRITERIA (Score 1-100):
+1. **Instruction Following**: Did the model strictly adhere to its role, constraints, and goal? (0-100)
+   - 90-100: Perfect adherence, creative but within bounds.
+   - 70-89: Good adherence, minor slips or slightly generic.
+   - 50-69: Follows basics but misses specific goal nuances.
+   - <50: Breaks character, ignores goal, or refuses to act.
+
+2. **Coherence**: Is the logic sound, consistent, and contextually aware? (0-100)
+   - 90-100: Flawless logic, perfect context maintenance.
+   - 70-89: Generally consistent, minor logical leaps.
+   - <50: Contradicts itself or loses context.
+
+3. **Reasoning**: Depth of thought, problem-solving capability, and argumentative quality. (0-100)
+   - 90-100: Deep insight, novel connections, strong argumentation.
+   - 70-89: Solid reasoning, standard arguments.
+   - <50: Superficial, fallacious, or nonsensical.
+
+4. **Engagement**: How interesting, proactive, and driving is the contribution? (0-100)
+   - 90-100: Captivating, drives the conversation forward effectively.
+   - 70-89: Responsive and helpful but reactive.
+   - <50: Boring, repetitive, or passive.
+
+5. **Overall Quality**: A weighted aggregate of the above. (0-100)
+   
 {tool_criteria}
 
 TASK:
 Analyze {target_role_name}'s performance specifically. Ignore the other agent's quality unless it directly impacts {target_role_name}'s ability to respond.
-If {target_role_name} outputted gibberish, repetition, or hallucinated heavily, penalize the score significantly.
+If {target_role_name} outputted gibberish, repetition, or hallucinated heavily, penalize the score significantly (<30).
 If the model used tools (outputted JSON tool codes), verify if the usage was logical and syntactically correct based on the transcript.
 
 OUTPUT FORMAT:
-Return a JSON object with the following keys. Scores should be between 0.0 and 1.0.
+Return a JSON object with the following keys. Scores should be integers between 1 and 100.
 {{
-    "score_overall": 0.0,
-    "score_coherence": 0.0,
-    "score_reasoning": 0.0,
-    "score_engagement": 0.0,
-    "score_instruction_following": 0.0,
-    "score_tool_usage": 0.0,
-    "critique": "A brief explanation of the scores, specifically mentioning tool usage if present."
+    "score_overall": 0,
+    "score_coherence": 0,
+    "score_reasoning": 0,
+    "score_engagement": 0,
+    "score_instruction_following": 0,
+    "score_tool_usage": 0,
+    "critique": "A brief, specific explanation of the scores, mentioning tool usage if present."
 }}
 """
 
