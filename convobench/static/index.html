@@ -493,6 +493,20 @@
             font-weight: 600;
         }
 
+        #scenarioDesc {
+            font-size: 0.85rem; 
+            color: var(--text-secondary); 
+            margin-top: 12px; 
+            display: none; 
+            line-height: 1.5;
+            white-space: pre-wrap;
+            font-family: 'Inter', sans-serif;
+            background: rgba(0,0,0,0.2);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+        }
+
         .message-body {
             display: flex;
             flex-direction: column;
@@ -705,6 +719,45 @@
             background: #10b981;
             box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
         }
+
+        /* Markdown Styles */
+        .code-block {
+            background: #1e1e20;
+            border-radius: 8px;
+            margin: 12px 0;
+            border: 1px solid var(--border-subtle);
+            overflow: hidden;
+        }
+        .code-header {
+            background: rgba(255,255,255,0.05);
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            border-bottom: 1px solid var(--border-subtle);
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+        }
+        .code-block code {
+            display: block;
+            padding: 12px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: #e4e4e7;
+            white-space: pre;
+        }
+        .inline-code {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+            color: var(--accent);
+        }
+        strong {
+            font-weight: 600;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -886,7 +939,7 @@
             const scenario = scenarios.find(s => s.id === select.value);
             
             if (scenario) {
-                desc.textContent = scenario.description;
+                desc.innerHTML = formatContent(scenario.description);
                 desc.style.display = 'block';
                 promptArea.style.opacity = '0.5';
                 promptArea.style.pointerEvents = 'none';
@@ -911,6 +964,32 @@
             if (!active && text === 'Ready') {
                 setTimeout(() => toast.classList.remove('visible'), 3000);
             }
+        }
+
+        function formatContent(text) {
+            if (!text) return '';
+            
+            // 1. Basic HTML Escape
+            let formatted = text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+
+            // 2. Code Blocks
+            formatted = formatted.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+                return `<div class="code-block">
+                            <div class="code-header">${lang || 'CODE'}</div>
+                            <code>${code}</code>
+                        </div>`;
+            });
+
+            // 3. Inline Code
+            formatted = formatted.replace(/`([^`]+)`/g, '<span class="inline-code">$1</span>');
+
+            // 4. Bold
+            formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+            return formatted;
         }
 
         function addMessage(agent, content, modelKey, turn, reasoning = null, toolOutput = null) {
@@ -940,7 +1019,7 @@
                 reasoningHtml = `
                     <div class="reasoning-block">
                         <span class="reasoning-label">Internal Reasoning</span>
-                        ${reasoning}
+                        ${formatContent(reasoning)}
                     </div>
                 `;
             }
@@ -950,7 +1029,7 @@
                 toolHtml = `
                     <div class="tool-output">
                         <span class="tool-label">Tool Execution Result</span>
-                        ${toolOutput}
+                        ${formatContent(toolOutput)}
                     </div>
                 `;
             }
@@ -963,7 +1042,7 @@
                         <span class="turn-tag">TURN ${turn}</span>
                     </div>
                     ${reasoningHtml}
-                    <div class="content">${content}</div>
+                    <div class="content">${formatContent(content)}</div>
                     ${toolHtml}
                 </div>
             `;

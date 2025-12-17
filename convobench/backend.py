@@ -387,7 +387,8 @@ def generate_turn(conv_id):
         scenario = get_scenario(conv["scenario_id"])
     
     if scenario:
-        system_prompt = scenario.get_system_prompt(current_agent)
+        max_turns = conv.get("max_turns", 10)
+        system_prompt = scenario.get_system_prompt(current_agent, max_turns=max_turns)
     elif current_agent == "a":
         system_prompt = "You are Agent A in a conversation. Respond naturally and authentically. Be concise."
     else:
