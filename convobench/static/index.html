@@ -465,6 +465,34 @@
         .agent-a .avatar-dot { background: var(--agent-a); box-shadow: 0 0 15px rgba(96, 165, 250, 0.2); }
         .agent-b .avatar-dot { background: var(--agent-b); box-shadow: 0 0 15px rgba(52, 211, 153, 0.2); }
 
+        .message.system-tool {
+            grid-template-columns: 1fr;
+            gap: 0;
+            margin: 0 40px;
+        }
+
+        .tool-output {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-left: 3px solid var(--accent);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .tool-label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
         .message-body {
             display: flex;
             flex-direction: column;
@@ -723,7 +751,15 @@
             </div>
         </div>
 
-        <div class="prompt-area">
+        <div class="model-card" style="margin-bottom: 24px;">
+            <span class="label">Scenario</span>
+            <select id="scenarioSelect" onchange="handleScenarioChange()">
+                <option value="">Free Chat (Custom Prompt)</option>
+            </select>
+            <p id="scenarioDesc" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 12px; display: none; line-height: 1.5;"></p>
+        </div>
+
+        <div class="prompt-area" id="promptArea">
             <span class="label">Seed Prompt</span>
             <textarea id="seedPrompt" placeholder="What starts the conversation?">Let's have a philosophical discussion about the nature of consciousness and whether machines can truly think.</textarea>
         </div>
@@ -820,6 +856,48 @@
         let currentTurn = 0;
         let maxTurns = 10;
         let shouldStop = false;
+        let scenarios = [];
+
+        // Load scenarios on init
+        loadScenarios();
+
+        async function loadScenarios() {
+            try {
+                const res = await fetch(`${API_BASE}/api/scenarios`);
+                scenarios = await res.json();
+                const select = document.getElementById('scenarioSelect');
+                scenarios.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error("Failed to load scenarios", err);
+            }
+        }
+
+        function handleScenarioChange() {
+            const select = document.getElementById('scenarioSelect');
+            const desc = document.getElementById('scenarioDesc');
+            const promptArea = document.getElementById('promptArea');
+            const seedPrompt = document.getElementById('seedPrompt');
+            
+            const scenario = scenarios.find(s => s.id === select.value);
+            
+            if (scenario) {
+                desc.textContent = scenario.description;
+                desc.style.display = 'block';
+                promptArea.style.opacity = '0.5';
+                promptArea.style.pointerEvents = 'none';
+                seedPrompt.value = `[Scenario: ${scenario.name}]\n${scenario.description}`;
+            } else {
+                desc.style.display = 'none';
+                promptArea.style.opacity = '1';
+                promptArea.style.pointerEvents = 'auto';
+                seedPrompt.value = "Let's have a philosophical discussion about the nature of consciousness and whether machines can truly think.";
+            }
+        }
 
         function setStatus(text, active = false) {
             const toast = document.getElementById('statusToast');
@@ -835,7 +913,7 @@
             }
         }
 
-        function addMessage(agent, content, modelKey, turn, reasoning = null) {
+        function addMessage(agent, content, modelKey, turn, reasoning = null, toolOutput = null) {
             const list = document.getElementById('messageList');
             const emptyState = document.querySelector('.empty-state');
             if (emptyState) emptyState.style.display = 'none';
@@ -867,6 +945,16 @@
                 `;
             }
 
+            let toolHtml = '';
+            if (toolOutput) {
+                toolHtml = `
+                    <div class="tool-output">
+                        <span class="tool-label">Tool Execution Result</span>
+                        ${toolOutput}
+                    </div>
+                `;
+            }
+
             msgDiv.innerHTML = `
                 <div class="avatar-dot">${agent.toUpperCase()}</div>
                 <div class="message-body">
@@ -876,6 +964,7 @@
                     </div>
                     ${reasoningHtml}
                     <div class="content">${content}</div>
+                    ${toolHtml}
                 </div>
             `;
             
@@ -901,6 +990,7 @@
             const modelA = document.getElementById('modelA').value;
             const modelB = document.getElementById('modelB').value;
             const seedPrompt = document.getElementById('seedPrompt').value;
+            const scenarioId = document.getElementById('scenarioSelect').value;
             maxTurns = parseInt(document.getElementById('maxTurns').value);
 
             if (!seedPrompt.trim()) return;
@@ -924,7 +1014,13 @@
                 const res = await fetch(`${API_BASE}/api/conversation/start`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model_a: modelA, model_b: modelB, seed_prompt: seedPrompt, max_turns: maxTurns })
+                    body: JSON.stringify({ 
+                        model_a: modelA, 
+                        model_b: modelB, 
+                        seed_prompt: seedPrompt, 
+                        max_turns: maxTurns,
+                        scenario_id: scenarioId || null 
+                    })
                 });
                 const data = await res.json();
                 conversationId = data.conversation_id;
@@ -964,6 +1060,7 @@
                     const decoder = new TextDecoder();
                     let content = '';
                     let reasoning = '';
+                    let toolOutput = '';
 
                     while (true) {
                         const { done, value } = await reader.read();
@@ -977,12 +1074,13 @@
                                     const data = JSON.parse(line.slice(6));
                                     if (data.type === 'content') content += data.content;
                                     else if (data.type === 'reasoning') reasoning += data.content;
+                                    else if (data.type === 'tool_result') toolOutput += data.content;
                                 } catch(e) {}
                             }
                         }
                     }
                     
-                    addMessage(currentAgent, content, modelKey, currentTurn, reasoning);
+                    addMessage(currentAgent, content, modelKey, currentTurn, reasoning, toolOutput);
                     
                 } catch (err) {
                     setStatus('Error generating turn', false);
@@ -1076,8 +1174,8 @@
             const isVisible = modal.classList.contains('visible');
             
             if (!isVisible) {
-                loadLeaderboard();
                 modal.classList.add('visible');
+                loadLeaderboard();
             } else {
                 modal.classList.remove('visible');
             }
@@ -1087,40 +1185,25 @@
             try {
                 const res = await fetch(`${API_BASE}/api/leaderboard`);
                 const data = await res.json();
-                renderLeaderboard(data);
-            } catch (err) {
-                console.error('Failed to load leaderboard', err);
-            }
-        }
-
-        function renderLeaderboard(data) {
-            const tbody = document.getElementById('leaderboardBody');
-            
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 32px; color: var(--text-tertiary);">No benchmark data available yet</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = data.map((row, index) => {
-                const getScoreColor = (score) => {
-                    if (score >= 0.8) return 'score-high';
-                    if (score >= 0.6) return 'score-med';
-                    return 'score-low';
-                };
-
-                return `
+                
+                const tbody = document.getElementById('leaderboardBody');
+                tbody.innerHTML = data.map((row, i) => `
                     <tr>
-                        <td class="rank-cell">#${index + 1}</td>
+                        <td class="rank-cell">#${i + 1}</td>
                         <td class="model-cell">${row.model_name}</td>
-                        <td class="score-cell ${getScoreColor(row.avg_overall)}">${(row.avg_overall * 100).toFixed(1)}</td>
-                        <td class="score-cell">${(row.avg_coherence * 100).toFixed(1)}</td>
-                        <td class="score-cell">${(row.avg_reasoning * 100).toFixed(1)}</td>
-                        <td class="score-cell">${(row.avg_engagement * 100).toFixed(1)}</td>
-                        <td class="score-cell">${(row.avg_instruction_following * 100).toFixed(1)}</td>
-                        <td class="rank-cell">${row.conversations_count}</td>
+                        <td class="score-cell ${getScoreClass(row.avg_overall)}">${formatScore(row.avg_overall)}</td>
+                        <td class="score-cell">${formatScore(row.avg_coherence)}</td>
+                        <td class="score-cell">${formatScore(row.avg_reasoning)}</td>
+                        <td class="score-cell">${formatScore(row.avg_engagement)}</td>
+                        <td class="score-cell">${formatScore(row.avg_instruction_following)}</td>
+                        <td class="score-cell">${row.avg_tool_usage ? formatScore(row.avg_tool_usage) : '-'}</td>
+                        <td class="score-cell" style="color: var(--text-tertiary)">${row.conversations_count}</td>
                     </tr>
-                `;
-            }).join('');
+                `).join('');
+                
+            } catch (err) {
+                console.error("Failed to load leaderboard", err);
+            }
         }
     </script>
 </body>

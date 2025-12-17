@@ -24,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from storage.database import Database
 from storage.models import Conversation, Message, AgentRole
 from analysis.benchmark_evaluator import BenchmarkEvaluator
+from convobench.scenarios import get_scenario, get_scenarios_list
 
 app = Flask(__name__, static_folder='static')
 CORS(app)
@@ -311,34 +312,50 @@ def get_models():
     })
 
 
+@app.route('/api/scenarios')
+def get_scenarios():
+    """Return available scenarios"""
+    return jsonify(get_scenarios_list())
+
+
 @app.route('/api/conversation/start', methods=['POST'])
 def start_conversation():
     """Start a new conversation"""
     data = request.json
     
+    scenario_id = data.get("scenario_id")
+    seed_prompt = data.get("seed_prompt", "Hello!")
+    
+    # If scenario selected, use its name/description for context if needed,
+    # but mostly we store the ID to retrieve prompts later.
+    
     # Create Conversation model
+    metadata = {"scenario_id": scenario_id} if scenario_id else {}
+    metadata["max_turns"] = data.get("max_turns", 10)
+
     conv = Conversation(
-        seed_prompt=data.get("seed_prompt", "Hello!"),
-        category="convobench",
+        seed_prompt=seed_prompt,
+        category="scenario" if scenario_id else "convobench",
         agent_a_model=data.get("model_a", "llama-70b"),
         agent_b_model=data.get("model_b", "llama-70b"),
         agent_a_temp=MODELS[data.get("model_a", "llama-70b")]["temperature"],
         agent_b_temp=MODELS[data.get("model_b", "llama-70b")]["temperature"],
-        max_turns=data.get("max_turns", 10),  # Note: max_turns not in DB model but useful for state
         status="active",
-        start_time=datetime.now()
+        start_time=datetime.now(),
+        metadata=metadata
     )
     
     # Save to DB
     conv_id = db.create_conversation(conv)
     
-    # Store in memory for active state management (keeping track of turns/messages for UI)
+    # Store in memory for active state management
     conversations[str(conv_id)] = {
         "id": str(conv_id),
         "db_id": conv_id,
         "model_a": conv.agent_a_model,
         "model_b": conv.agent_b_model,
         "seed_prompt": conv.seed_prompt,
+        "scenario_id": scenario_id,
         "max_turns": data.get("max_turns", 10),
         "messages": [],
         "status": "active",
@@ -365,7 +382,13 @@ def generate_turn(conv_id):
     messages = []
     
     # System prompt
-    if current_agent == "a":
+    scenario = None
+    if conv.get("scenario_id"):
+        scenario = get_scenario(conv["scenario_id"])
+    
+    if scenario:
+        system_prompt = scenario.get_system_prompt(current_agent)
+    elif current_agent == "a":
         system_prompt = "You are Agent A in a conversation. Respond naturally and authentically. Be concise."
     else:
         system_prompt = "You are Agent B in a conversation. Respond naturally and build on what was said. Be direct."
@@ -374,10 +397,17 @@ def generate_turn(conv_id):
     
     # Add conversation history
     for msg in conv["messages"]:
-        role = "assistant" if msg["agent"] == current_agent else "user"
-        messages.append({"role": role, "content": msg["content"]})
+        # Map stored roles to API roles
+        if msg.get("role") == "system":
+             messages.append({"role": "system", "content": msg["content"]})
+        else:
+            role = "assistant" if msg["agent"] == current_agent else "user"
+            messages.append({"role": role, "content": msg["content"]})
     
-    # If first turn for agent A, add seed prompt
+    # If first turn for agent A, add seed prompt (only if NOT in a scenario, usually scenarios have goals in system prompt)
+    # Actually, even in scenarios, the user might want to kick it off, or the seed prompt is ignored/used as initial context?
+    # Let's keep seed prompt logic but maybe suppress it if scenario implies self-start?
+    # Usually scenarios need a trigger. Let's assume seed prompt is the trigger.
     if len(conv["messages"]) == 0 and current_agent == "a":
         messages.append({"role": "user", "content": conv["seed_prompt"]})
     
@@ -397,11 +427,10 @@ def generate_turn(conv_id):
             except:
                 pass
         
-        # Create Message object
+        # Save Agent Message to DB & Memory
         timestamp = datetime.now()
         turn_num = len(conv["messages"]) + 1
         
-        # Save to DB
         db_msg = Message(
             role=AgentRole.AGENT_A if current_agent == 'a' else AgentRole.AGENT_B,
             content=full_response,
@@ -413,7 +442,6 @@ def generate_turn(conv_id):
         )
         db.add_message(conv["db_id"], db_msg)
         
-        # Update in-memory state
         conv["messages"].append({
             "agent": current_agent,
             "model": model_key,
@@ -423,6 +451,71 @@ def generate_turn(conv_id):
             "timestamp": timestamp.isoformat()
         })
         
+        # --- Tool Execution Logic ---
+        tool_call_detected = False
+        tool_output_str = ""
+        
+        if scenario and "```tool_code" in full_response:
+            try:
+                # Extract JSON block
+                start = full_response.find("```tool_code") + 12
+                end = full_response.find("```", start)
+                if end != -1:
+                    json_str = full_response[start:end].strip()
+                    tool_call = json.loads(json_str)
+                    
+                    tool_name = tool_call.get("tool_name")
+                    args = tool_call.get("arguments", {})
+                    
+                    # Find tool definition
+                    tool_def = next((t for t in scenario.tools if t.name == tool_name), None)
+                    
+                    if tool_def:
+                        # Execute Mock Tool
+                        tool_result = tool_def.mock_handler(args)
+                        tool_output_str = f"TOOL OUTPUT ({tool_name}): {tool_result}"
+                        tool_call_detected = True
+                    else:
+                        tool_output_str = f"SYSTEM ERROR: Tool '{tool_name}' not found."
+                        tool_call_detected = True
+            except Exception as e:
+                tool_output_str = f"SYSTEM ERROR: Failed to parse tool call. {str(e)}"
+                tool_call_detected = True
+
+        if tool_call_detected:
+            # Yield tool output to frontend
+            yield f"data: {json.dumps({'type': 'tool_result', 'content': tool_output_str})}\n\n"
+            
+            # Save System Message (Tool Result) to DB & Memory
+            # We treat this as a 'system' role message or just a message from a special agent?
+            # Let's use metadata to mark it, but add it as a message so it appears in history.
+            # Role? Maybe 'system' or 'user' (from perspective of agent)?
+            # In Chat Arena, 'system' messages are good.
+            # But our Message model supports AGENT_A/B. Let's add SYSTEM support or reuse one?
+            # Ideally update AgentRole enum, but let's just use AGENT_A/B but mark metadata?
+            # No, 'system' messages in `conv["messages"]` are handled above in prompt building.
+            # But `Message` dataclass validates role.
+            # Let's forcefully add it as a 'system' message in the local state, 
+            # and for DB, maybe we need to relax the enum or map it.
+            # For now, let's append it as a "System" message in local state so next turn sees it.
+            
+            conv["messages"].append({
+                "agent": "system",
+                "role": "system",
+                "content": tool_output_str,
+                "turn": turn_num, # Same turn?
+                "timestamp": datetime.now().isoformat()
+            })
+            
+            # We skip DB save for tool outputs for now unless we update the schema, 
+            # OR we append it to the agent's message content?
+            # Appending to content is safer for current DB schema.
+            # Let's append it to the *previous* DB message record?
+            # Or just create a new message with role 'agent_a' (self) saying "Tool Result: ..."?
+            # That's confusing.
+            # Let's just store it in local memory for the context window.
+            # The evaluator will see it in the transcript if we pass `conv["messages"]`.
+
         yield f"data: {json.dumps({'type': 'done', 'turn': turn_num})}\n\n"
     
     return Response(generate(), mimetype='text/event-stream')

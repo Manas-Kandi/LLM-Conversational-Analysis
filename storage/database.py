@@ -99,12 +99,20 @@ class Database:
                     score_reasoning REAL,
                     score_engagement REAL,
                     score_instruction_following REAL,
+                    score_tool_usage REAL,
                     metrics_json TEXT,
                     timestamp TEXT NOT NULL,
                     FOREIGN KEY (conversation_id) REFERENCES conversations (id)
                 )
             """)
             
+            # Migration: Check if score_tool_usage exists, if not add it
+            try:
+                cursor.execute("SELECT score_tool_usage FROM model_metrics LIMIT 1")
+            except sqlite3.OperationalError:
+                print("Migrating database: Adding score_tool_usage to model_metrics...")
+                cursor.execute("ALTER TABLE model_metrics ADD COLUMN score_tool_usage REAL")
+
             # Create indexes for better query performance
             cursor.execute("""
                 CREATE INDEX IF NOT EXISTS idx_conversations_category 
@@ -380,8 +388,8 @@ class Database:
                 INSERT INTO model_metrics 
                 (conversation_id, model_name, role, score_overall, score_coherence, 
                  score_reasoning, score_engagement, score_instruction_following, 
-                 metrics_json, timestamp)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 score_tool_usage, metrics_json, timestamp)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 metrics["conversation_id"],
                 metrics["model_name"],
@@ -391,6 +399,7 @@ class Database:
                 metrics.get("score_reasoning"),
                 metrics.get("score_engagement"),
                 metrics.get("score_instruction_following"),
+                metrics.get("score_tool_usage"),
                 json.dumps(metrics.get("metrics_json", {})),
                 metrics["timestamp"]
             ))
@@ -407,7 +416,8 @@ class Database:
                     AVG(score_coherence) as avg_coherence,
                     AVG(score_reasoning) as avg_reasoning,
                     AVG(score_engagement) as avg_engagement,
-                    AVG(score_instruction_following) as avg_instruction_following
+                    AVG(score_instruction_following) as avg_instruction_following,
+                    AVG(score_tool_usage) as avg_tool_usage
                 FROM model_metrics
                 GROUP BY model_name
                 ORDER BY avg_overall DESC
@@ -422,7 +432,8 @@ class Database:
                     "avg_coherence": row["avg_coherence"],
                     "avg_reasoning": row["avg_reasoning"],
                     "avg_engagement": row["avg_engagement"],
-                    "avg_instruction_following": row["avg_instruction_following"]
+                    "avg_instruction_following": row["avg_instruction_following"],
+                    "avg_tool_usage": row["avg_tool_usage"]
                 })
             
             return leaderboard
