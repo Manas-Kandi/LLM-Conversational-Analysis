@@ -48,6 +48,13 @@
             height: 100%;
         }
 
+        @media (max-width: 980px) {
+            .app-layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .chat-panel { border-right: none; }
+            .analysis-panel { display: none; }
+        }
+
         /* Sidebar */
         .sidebar {
             background: var(--bg-sidebar);
@@ -56,6 +63,13 @@
             flex-direction: column;
             padding: 20px;
             overflow-y: auto;
+        }
+
+        .sidebar-actions {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
         }
 
         .sidebar-header {
@@ -143,6 +157,18 @@
             flex-shrink: 0;
         }
 
+        .seed-prompt {
+            width: 100%;
+            background: #0f0f12;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 12px;
+            border-radius: var(--radius-md);
+            resize: vertical;
+            min-height: 80px;
+            line-height: 1.5;
+        }
+
         .config-group {
             flex: 1;
         }
@@ -187,7 +213,7 @@
         .btn-primary {
             background: var(--text-primary);
             color: var(--bg-app);
-            border: none;
+            border: 1px solid transparent;
             padding: 10px 24px;
             border-radius: var(--radius-md);
             font-weight: 600;
@@ -196,6 +222,17 @@
         }
         .btn-primary:active { transform: scale(0.98); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 10px 24px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-secondary:hover { border-color: var(--border-active); color: var(--text-primary); }
 
         /* Workspace: Chat + Analysis */
         .workspace {
@@ -403,9 +440,9 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">Convo<span>Bench</span></div>
-                <div style="margin-top: 12px; display: flex; gap: 8px;">
-                    <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem; width: 100%;" onclick="newSession()">+ New Session</button>
-                    <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem; background: #27272a;" onclick="toggleLeaderboard()">🏆</button>
+                <div class="sidebar-actions">
+                    <button class="btn-primary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="newSession()">New session</button>
+                    <button class="btn-secondary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="toggleLeaderboard()">Leaderboard</button>
                 </div>
             </div>
             <div class="history-list" id="historyList">
@@ -449,8 +486,8 @@
                 </div>
             </div>
 
-            <div id="seedPromptContainer" style="padding: 0 32px; margin-top: 20px;">
-                 <textarea id="seedPrompt" style="width: 100%; background: #111; border: 1px solid var(--border-subtle); color: #ddd; padding: 12px; border-radius: 8px; resize: none;" rows="2" placeholder="Enter seed prompt..."></textarea>
+            <div id="seedPromptContainer" style="padding: 0 32px; margin-top: 16px;">
+                 <textarea id="seedPrompt" class="seed-prompt" placeholder="Enter seed prompt..."></textarea>
             </div>
 
             <!-- Workspace -->
@@ -516,6 +553,8 @@
         loadScenarios();
         loadHistory();
         loadModels();
+        // Ensure seed prompt is populated on initial load
+        handleScenarioChange();
 
         async function loadModels() {
             try {
