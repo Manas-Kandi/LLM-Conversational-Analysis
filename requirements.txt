@@ -37,3 +37,4 @@ scikit-learn>=1.1.0
 
 # Web viewer
 flask>=3.0.0
+flask-cors>=4.0.0

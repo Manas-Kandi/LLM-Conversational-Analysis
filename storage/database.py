@@ -86,6 +86,24 @@ class Database:
                     FOREIGN KEY (conversation_id) REFERENCES conversations (id)
                 )
             """)
+
+            # Model metrics table for benchmarking
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS model_metrics (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    conversation_id INTEGER NOT NULL,
+                    model_name TEXT NOT NULL,
+                    role TEXT NOT NULL,
+                    score_overall REAL,
+                    score_coherence REAL,
+                    score_reasoning REAL,
+                    score_engagement REAL,
+                    score_instruction_following REAL,
+                    metrics_json TEXT,
+                    timestamp TEXT NOT NULL,
+                    FOREIGN KEY (conversation_id) REFERENCES conversations (id)
+                )
+            """)
             
             # Create indexes for better query performance
             cursor.execute("""
@@ -104,7 +122,11 @@ class Database:
                 CREATE INDEX IF NOT EXISTS idx_analysis_conversation 
                 ON analysis_results(conversation_id)
             """)
-    
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_metrics_model 
+                ON model_metrics(model_name)
+            """)
+
     def create_conversation(self, conversation: Conversation) -> int:
         """Create a new conversation and return its ID"""
         with self.get_connection() as conn:
@@ -349,3 +371,58 @@ class Database:
                 "total_messages": total_messages,
                 "total_analyses": total_analyses
             }
+
+    def save_model_metrics(self, metrics: Dict[str, Any]):
+        """Save benchmarking metrics for a specific model in a conversation"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO model_metrics 
+                (conversation_id, model_name, role, score_overall, score_coherence, 
+                 score_reasoning, score_engagement, score_instruction_following, 
+                 metrics_json, timestamp)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                metrics["conversation_id"],
+                metrics["model_name"],
+                metrics["role"],
+                metrics.get("score_overall"),
+                metrics.get("score_coherence"),
+                metrics.get("score_reasoning"),
+                metrics.get("score_engagement"),
+                metrics.get("score_instruction_following"),
+                json.dumps(metrics.get("metrics_json", {})),
+                metrics["timestamp"]
+            ))
+
+    def get_leaderboard(self) -> List[Dict[str, Any]]:
+        """Get aggregated performance metrics for all models"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT 
+                    model_name,
+                    COUNT(*) as conversations_count,
+                    AVG(score_overall) as avg_overall,
+                    AVG(score_coherence) as avg_coherence,
+                    AVG(score_reasoning) as avg_reasoning,
+                    AVG(score_engagement) as avg_engagement,
+                    AVG(score_instruction_following) as avg_instruction_following
+                FROM model_metrics
+                GROUP BY model_name
+                ORDER BY avg_overall DESC
+            """)
+            
+            leaderboard = []
+            for row in cursor.fetchall():
+                leaderboard.append({
+                    "model_name": row["model_name"],
+                    "conversations_count": row["conversations_count"],
+                    "avg_overall": row["avg_overall"],
+                    "avg_coherence": row["avg_coherence"],
+                    "avg_reasoning": row["avg_reasoning"],
+                    "avg_engagement": row["avg_engagement"],
+                    "avg_instruction_following": row["avg_instruction_following"]
+                })
+            
+            return leaderboard

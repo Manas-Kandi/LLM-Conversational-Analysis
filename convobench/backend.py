@@ -21,6 +21,10 @@ import requests
 # Add parent directory for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from storage.database import Database
+from storage.models import Conversation, Message, AgentRole
+from analysis.benchmark_evaluator import BenchmarkEvaluator
+
 app = Flask(__name__, static_folder='static')
 CORS(app)
 
@@ -30,6 +34,13 @@ load_dotenv(Path(__file__).parent.parent / '.env')
 
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY")
 NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
+DB_PATH = Path(__file__).parent.parent / "storage" / "conversations.db"
+
+# Initialize Database
+db = Database(DB_PATH)
+
+# Initialize Evaluator
+benchmark_evaluator = BenchmarkEvaluator(api_key=NVIDIA_API_KEY)
 
 # Model configurations
 MODELS = {
@@ -304,20 +315,37 @@ def get_models():
 def start_conversation():
     """Start a new conversation"""
     data = request.json
-    conv_id = str(uuid.uuid4())[:8]
     
-    conversations[conv_id] = {
-        "id": conv_id,
-        "model_a": data.get("model_a", "llama-70b"),
-        "model_b": data.get("model_b", "llama-70b"),
-        "seed_prompt": data.get("seed_prompt", "Hello!"),
+    # Create Conversation model
+    conv = Conversation(
+        seed_prompt=data.get("seed_prompt", "Hello!"),
+        category="convobench",
+        agent_a_model=data.get("model_a", "llama-70b"),
+        agent_b_model=data.get("model_b", "llama-70b"),
+        agent_a_temp=MODELS[data.get("model_a", "llama-70b")]["temperature"],
+        agent_b_temp=MODELS[data.get("model_b", "llama-70b")]["temperature"],
+        max_turns=data.get("max_turns", 10),  # Note: max_turns not in DB model but useful for state
+        status="active",
+        start_time=datetime.now()
+    )
+    
+    # Save to DB
+    conv_id = db.create_conversation(conv)
+    
+    # Store in memory for active state management (keeping track of turns/messages for UI)
+    conversations[str(conv_id)] = {
+        "id": str(conv_id),
+        "db_id": conv_id,
+        "model_a": conv.agent_a_model,
+        "model_b": conv.agent_b_model,
+        "seed_prompt": conv.seed_prompt,
         "max_turns": data.get("max_turns", 10),
         "messages": [],
         "status": "active",
-        "created_at": datetime.now().isoformat()
+        "created_at": conv.start_time.isoformat()
     }
     
-    return jsonify({"conversation_id": conv_id})
+    return jsonify({"conversation_id": str(conv_id)})
 
 
 @app.route('/api/conversation/<conv_id>/turn', methods=['POST'])
@@ -369,30 +397,46 @@ def generate_turn(conv_id):
             except:
                 pass
         
-        # Store the message
+        # Create Message object
+        timestamp = datetime.now()
+        turn_num = len(conv["messages"]) + 1
+        
+        # Save to DB
+        db_msg = Message(
+            role=AgentRole.AGENT_A if current_agent == 'a' else AgentRole.AGENT_B,
+            content=full_response,
+            timestamp=timestamp,
+            turn_number=turn_num,
+            model=MODELS[model_key]["id"],
+            temperature=MODELS[model_key]["temperature"],
+            metadata={"reasoning": reasoning_content} if reasoning_content else {}
+        )
+        db.add_message(conv["db_id"], db_msg)
+        
+        # Update in-memory state
         conv["messages"].append({
             "agent": current_agent,
             "model": model_key,
             "content": full_response,
             "reasoning": reasoning_content if reasoning_content else None,
-            "turn": len(conv["messages"]) + 1,
-            "timestamp": datetime.now().isoformat()
+            "turn": turn_num,
+            "timestamp": timestamp.isoformat()
         })
         
-        yield f"data: {json.dumps({'type': 'done', 'turn': len(conv['messages'])})}\n\n"
+        yield f"data: {json.dumps({'type': 'done', 'turn': turn_num})}\n\n"
     
     return Response(generate(), mimetype='text/event-stream')
 
 
 @app.route('/api/conversation/<conv_id>/analyze', methods=['POST'])
 def analyze_conversation(conv_id):
-    """Run Kimi K2 analysis on conversation"""
+    """Run Kimi K2 analysis AND per-model benchmarking"""
     if conv_id not in conversations:
         return jsonify({"error": "Conversation not found"}), 404
     
     conv = conversations[conv_id]
     
-    # Format messages for analysis
+    # 1. Run Conversation-Level Analysis (Kimi K2)
     analysis_messages = [
         {"role": f"Agent {msg['agent'].upper()}", "content": msg["content"]}
         for msg in conv["messages"]
@@ -402,7 +446,59 @@ def analyze_conversation(conv_id):
     conv["analysis"] = analysis
     conv["status"] = "analyzed"
     
+    # Update status in DB
+    db.update_conversation_status(conv["db_id"], "completed", datetime.now())
+    
+    # 2. Run Benchmarking (Per-Model Evaluation)
+    
+    # Construct conversation dict for the evaluator (matches what save_conversation produces)
+    conv_data = {
+        "id": conv["db_id"],
+        "metadata": {
+            "seed_prompt": conv["seed_prompt"],
+            "end_time": datetime.now().isoformat()
+        },
+        "agents": {
+            "agent_a": {"model": MODELS[conv["model_a"]]["id"]},
+            "agent_b": {"model": MODELS[conv["model_b"]]["id"]}
+        },
+        "messages": [
+            {"role": f"agent_{m['agent']}", "content": m['content']} 
+            for m in conv["messages"]
+        ]
+    }
+
+    # Evaluate Agent A
+    metrics_a = benchmark_evaluator.evaluate_model_performance(conv_data, "a")
+    # Using the friendly name for the DB is better for leaderboard grouping? 
+    # Or strict ID? Let's use the key name from backend for grouping (e.g. 'llama-70b') 
+    # OR the full model ID. The evaluator returns the ID from 'agents' dict.
+    # Let's map it back or just use the ID. The DB schema uses 'model_name'.
+    # I'll use the friendly name from MODELS config if available, or the ID.
+    model_name_a = MODELS[conv["model_a"]]["name"]
+    metrics_a["model_name"] = model_name_a # Override with friendly name for leaderboard
+    db.save_model_metrics(metrics_a)
+    
+    # Evaluate Agent B
+    metrics_b = benchmark_evaluator.evaluate_model_performance(conv_data, "b")
+    model_name_b = MODELS[conv["model_b"]]["name"]
+    metrics_b["model_name"] = model_name_b
+    db.save_model_metrics(metrics_b)
+    
+    # Include metrics in response
+    analysis["benchmarks"] = {
+        "agent_a": metrics_a,
+        "agent_b": metrics_b
+    }
+    
     return jsonify(analysis)
+
+
+@app.route('/api/leaderboard', methods=['GET'])
+def get_leaderboard():
+    """Get model leaderboard"""
+    stats = db.get_leaderboard()
+    return jsonify(stats)
 
 
 @app.route('/api/conversation/<conv_id>')
